@@ -1,0 +1,11 @@
+{
+  "name": "autolocknative",
+  "version-string": "1",
+  "dependencies": [
+    "boost-stl-interfaces",
+    "effolkronium-random",
+    "inih",
+    "rsm-binary-io",
+    "spdlog"
+  ]
+}
