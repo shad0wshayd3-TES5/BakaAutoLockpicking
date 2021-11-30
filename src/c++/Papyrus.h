@@ -261,7 +261,7 @@ namespace Papyrus
 		static inline void HandleCrime(RE::TESObjectREFR* a_reference)
 		{
 			auto owner = a_reference->GetOwner();
-			if (!owner && owner->GetFormType() == RE::FormType::Door) {
+			if (!owner && a_reference->GetFormType() == RE::FormType::Door) {
 				if (auto extra = a_reference->extraList.GetByType<RE::ExtraTeleport>(); extra) {
 					if (auto teleport = extra->teleportData; teleport) {
 						if (auto linkedDoor = teleport->linkedDoor.get(); linkedDoor) {
