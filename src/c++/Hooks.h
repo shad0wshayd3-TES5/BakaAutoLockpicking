@@ -280,8 +280,9 @@ namespace Hooks
 			}
 
 			auto SkillMod = PlayerCharacter->GetActorValue(RE::ActorValue::kLockpickingModifier);
+			auto SkillPwr = PlayerCharacter->GetActorValue(RE::ActorValue::kLockpickingPowerModifier);
 			auto SkillLvl = PlayerCharacter->GetActorValue(GetSkillFromIndex());
-			auto SkillVal = SkillLvl * (1.0f + SkillMod / 100.0f);
+			auto SkillVal = SkillLvl * (1.0f + ((SkillMod + SkillPwr) / 100.0f));
 
 			return static_cast<std::int32_t>(floorf(SkillVal / Settings::MCM::Rolls::iBonusPerSkills));
 		}
