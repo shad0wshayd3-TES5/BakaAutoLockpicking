@@ -27,11 +27,11 @@ namespace Hooks
 			auto Total = Skill + Perks + LCKSM + Bonus;
 
 			return std::vector<std::string>{
-				fmt::format(Skill >= 0 ? "+{:d}"sv : "{:d}"sv, Skill),
-				fmt::format(Perks >= 0 ? "+{:d}"sv : "{:d}"sv, Perks),
-				fmt::format(LCKSM >= 0 ? "+{:d}"sv : "{:d}"sv, LCKSM),
-				fmt::format(Bonus >= 0 ? "+{:d}"sv : "{:d}"sv, Bonus),
-				fmt::format(Total >= 0 ? "+{:d}"sv : "{:d}"sv, Total)
+				Skill >= 0 ? fmt::format("+{:d}"sv, Skill) : fmt::format("{:d}"sv, Skill),
+				Perks >= 0 ? fmt::format("+{:d}"sv, Perks) : fmt::format("{:d}"sv, Perks),
+				LCKSM >= 0 ? fmt::format("+{:d}"sv, LCKSM) : fmt::format("{:d}"sv, LCKSM),
+				Bonus >= 0 ? fmt::format("+{:d}"sv, Bonus) : fmt::format("{:d}"sv, Bonus),
+				Total >= 0 ? fmt::format("+{:d}"sv, Total) : fmt::format("{:d}"sv, Total)
 			};
 		}
 
@@ -156,11 +156,11 @@ namespace Hooks
 			if (Settings::MCM::General::bShowRollResults)
 			{
 				auto result = fmt::format(
-					Settings::MCM::General::sShowRollResults,
+					fmt::runtime(Settings::MCM::General::sShowRollResults),
 					LockVal,
 					RollVal,
 					RollMod);
-				logger::info(result.c_str());
+				logger::info("{:s}"sv, result);
 				RE::DebugNotification(result.c_str());
 			}
 
@@ -559,7 +559,7 @@ namespace Hooks
 					if (auto idx = result.find("%s"sv); idx != std::string::npos)
 					{
 						result.replace(idx, 2, "{:s}"sv);
-						result = fmt::format(result, NAME);
+						result = fmt::format(fmt::runtime(result), NAME);
 
 						RE::DebugNotification(result.c_str());
 					}
