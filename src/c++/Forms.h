@@ -13,8 +13,10 @@ namespace Forms
 
 	inline bool Register()
 	{
-		if (auto TESDataHandler = RE::TESDataHandler::GetSingleton(); TESDataHandler) {
-			if (TESDataHandler->GetLoadedLightModIndex(PLUGIN_NAME)) {
+		if (auto TESDataHandler = RE::TESDataHandler::GetSingleton())
+		{
+			if (TESDataHandler->GetLoadedLightModIndex(PLUGIN_NAME))
+			{
 				AutoLock_Perks_Base =
 					TESDataHandler->LookupForm<RE::BGSListForm>(0x802, PLUGIN_NAME);
 				AutoLock_Perks_Locksmith =

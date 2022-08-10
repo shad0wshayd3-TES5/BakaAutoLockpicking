@@ -1,11 +1,20 @@
 {
   "name": "autolocknative",
-  "version-string": "1",
+  "version-string": "3.0.0",
+  "license": "MIT",
   "dependencies": [
     "boost-stl-interfaces",
     "effolkronium-random",
-    "inih",
     "rsm-binary-io",
-    "spdlog"
+    "simpleini",
+    "spdlog",
+    "xbyak"
+  ],
+  "builtin-baseline": "bd1ef2df46303989eeb048eb7aa9b816aa46365e",
+  "overrides": [
+    {
+      "name": "fmt",
+      "version": "8.0.1"
+    }
   ]
 }
