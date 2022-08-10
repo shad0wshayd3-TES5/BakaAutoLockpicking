@@ -23,14 +23,14 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 
 	if (a_skse->IsEditor())
 	{
-		logger::critical("Loaded in editor, marking as incompatible"sv);
+		logger::critical("Loaded in editor, marking as incompatible");
 		return false;
 	}
 
 	const auto ver = a_skse->RuntimeVersion();
 	if (ver < SKSE::RUNTIME_1_5_39)
 	{
-		logger::critical(FMT_STRING("Unsupported runtime version {}"sv), ver.string());
+		logger::critical(FMT_STRING("Unsupported runtime version {:s}"), ver.string());
 		return false;
 	}
 
@@ -48,7 +48,7 @@ namespace
 			stl::report_and_fail("Failed to find standard logging directory"sv);
 		}
 
-		*path /= fmt::format(FMT_STRING("{}.log"sv), Version::PROJECT);
+		*path /= fmt::format(FMT_STRING("{:s}.log"), Version::PROJECT);
 		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 
 		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
@@ -59,7 +59,7 @@ namespace
 		spdlog::set_default_logger(std::move(log));
 		spdlog::set_pattern("[%^%l%$] %v"s);
 
-		logger::info(FMT_STRING("{} v{}"sv), Version::PROJECT, Version::NAME);
+		logger::info(FMT_STRING("{:s} v{:s}"), Version::PROJECT, Version::NAME);
 	}
 
 	void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
@@ -76,7 +76,7 @@ namespace
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
 	InitializeLog();
-	logger::info(FMT_STRING("{} loaded"sv), Version::PROJECT);
+	logger::info(FMT_STRING("{:s} loaded"), Version::PROJECT);
 
 	SKSE::Init(a_skse);
 	SKSE::AllocTrampoline(1 << 6);
@@ -84,14 +84,14 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	const auto messaging = SKSE::GetMessagingInterface();
 	if (!messaging->RegisterListener("SKSE", MessageHandler))
 	{
-		logger::critical("Failed to register message callback"sv);
+		logger::critical("Failed to register message callback");
 		return false;
 	}
 
 	const auto papyrus = SKSE::GetPapyrusInterface();
 	if (!papyrus->Register(Papyrus::AutoLockNative::Register))
 	{
-		logger::critical("Failed to register papyrus callback"sv);
+		logger::critical("Failed to register papyrus callback");
 		return false;
 	}
 

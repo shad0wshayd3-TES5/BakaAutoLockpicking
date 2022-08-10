@@ -12,7 +12,7 @@ namespace Papyrus
 			a_vm->RegisterFunction("GetRollModifiers", CLASS_NAME, GetRollModifiers);
 			a_vm->RegisterFunction("GetVersion", CLASS_NAME, GetVersion, true);
 			a_vm->RegisterFunction("UpdateSettings", CLASS_NAME, UpdateSettings);
-			logger::info(FMT_STRING("Registered funcs for class {}"sv), CLASS_NAME);
+			logger::info(FMT_STRING("Registered funcs for class {:s}"), CLASS_NAME);
 
 			return true;
 		}

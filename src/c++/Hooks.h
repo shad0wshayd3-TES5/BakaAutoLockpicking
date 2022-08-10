@@ -27,11 +27,11 @@ namespace Hooks
 			auto Total = Skill + Perks + LCKSM + Bonus;
 
 			return std::vector<std::string>{
-				Skill >= 0 ? fmt::format("+{:d}"sv, Skill) : fmt::format("{:d}"sv, Skill),
-				Perks >= 0 ? fmt::format("+{:d}"sv, Perks) : fmt::format("{:d}"sv, Perks),
-				LCKSM >= 0 ? fmt::format("+{:d}"sv, LCKSM) : fmt::format("{:d}"sv, LCKSM),
-				Bonus >= 0 ? fmt::format("+{:d}"sv, Bonus) : fmt::format("{:d}"sv, Bonus),
-				Total >= 0 ? fmt::format("+{:d}"sv, Total) : fmt::format("{:d}"sv, Total)
+				Skill >= 0 ? fmt::format(FMT_STRING("+{:d}"), Skill) : fmt::format(FMT_STRING("{:d}"), Skill),
+				Perks >= 0 ? fmt::format(FMT_STRING("+{:d}"), Perks) : fmt::format(FMT_STRING("{:d}"), Perks),
+				LCKSM >= 0 ? fmt::format(FMT_STRING("+{:d}"), LCKSM) : fmt::format(FMT_STRING("{:d}"), LCKSM),
+				Bonus >= 0 ? fmt::format(FMT_STRING("+{:d}"), Bonus) : fmt::format(FMT_STRING("{:d}"), Bonus),
+				Total >= 0 ? fmt::format(FMT_STRING("+{:d}"), Total) : fmt::format(FMT_STRING("{:d}"), Total)
 			};
 		}
 
@@ -160,7 +160,7 @@ namespace Hooks
 					LockVal,
 					RollVal,
 					RollMod);
-				logger::info("{:s}"sv, result);
+				logger::info(FMT_STRING("{:s}"), result);
 				RE::DebugNotification(result.c_str());
 			}
 
@@ -556,11 +556,9 @@ namespace Hooks
 				if (auto setting = GameSettingColl->GetSetting("sOpenWithKey"))
 				{
 					auto result = std::string{ setting->GetString() };
-					if (auto idx = result.find("%s"sv); idx != std::string::npos)
+					if (!result.empty())
 					{
-						result.replace(idx, 2, "{:s}"sv);
-						result = fmt::format(fmt::runtime(result), NAME);
-
+						result = fmt::sprintf(result, NAME);
 						RE::DebugNotification(result.c_str());
 					}
 				}
@@ -595,7 +593,7 @@ namespace Hooks
 						if (auto setting = GameSettingColl->GetSetting("sAddItemtoInventory"))
 						{
 							auto result = fmt::format(
-								FMT_STRING("{:s} {:s}"sv),
+								FMT_STRING("{:s} {:s}"),
 								NAME.c_str(),
 								setting->GetString());
 

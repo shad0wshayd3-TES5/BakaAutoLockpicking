@@ -7,6 +7,7 @@
 #include "SKSE/SKSE.h"
 
 #include <effolkronium/random.hpp>
+#include <fmt/printf.h>
 #include <SimpleIni.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <xbyak/xbyak.h>
@@ -21,9 +22,7 @@ namespace stl
 {
 	using namespace SKSE::stl;
 
-#ifdef SKSE_SUPPORT_XBYAK
 	void asm_replace(std::uintptr_t a_from, std::size_t a_size, std::uintptr_t a_to);
-#endif
 }
 
 #ifdef SKYRIM_AE
