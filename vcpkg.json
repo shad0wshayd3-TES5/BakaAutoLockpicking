@@ -1,6 +1,6 @@
 {
   "name": "autolocknative",
-  "version-string": "3.0.0",
+  "version-string": "3.2.0",
   "license": "MIT",
   "dependencies": [
     "boost-stl-interfaces",

@@ -93,6 +93,13 @@ namespace Hooks
 			inline static REL::Relocation<decltype(TryUnlockObject)> _TryUnlockObject;
 		};
 
+		inline static void* FinalizeUnlock(RE::TESObjectREFR* a_refr)
+		{
+			using func_t = decltype(&FinalizeUnlock);
+			REL::Relocation<func_t> func{ RELOCATION_ID(19110, 19512) };
+			return func(a_refr);
+		}
+
 		inline static void TryUnlockObjectImpl(RE::TESObjectREFR* a_refr)
 		{
 			if (!a_refr)
@@ -694,6 +701,8 @@ namespace Hooks
 		inline static void UnlockObject(RE::TESObjectREFR* a_refr)
 		{
 			a_refr->GetLock()->SetLocked(false);
+			FinalizeUnlock(a_refr);
+			
 			RE::PlaySound("UILockpickingUnlock");
 			HandleActivateUpdate(a_refr);
 
