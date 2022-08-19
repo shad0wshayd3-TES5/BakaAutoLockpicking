@@ -56,13 +56,13 @@ namespace Hooks
 				{
 					return false;
 				}
-				
+
 				return _PlayerHasKey(a_this, a_arg2, a_arg3, a_arg4, a_arg5, a_arg6);
 			}
 
 			inline static REL::Relocation<decltype(PlayerHasKey)> _PlayerHasKey;
 		};
-		
+
 		template<std::int32_t a_ID, std::int32_t a_OF>
 		class hkTryUnlockObject
 		{
@@ -523,7 +523,7 @@ namespace Hooks
 			{
 				return;
 			}
-			
+
 			if (PlayerHasBreakable())
 			{
 				for (auto& form : Forms::AutoLock_Items_Lockpick->forms)
@@ -571,7 +571,7 @@ namespace Hooks
 				}
 			}
 		}
-		
+
 		inline static void HandleWaxKey(RE::TESKey* a_key)
 		{
 			auto PlayerCharacter = RE::PlayerCharacter::GetSingleton();
@@ -594,7 +594,7 @@ namespace Hooks
 
 					auto NAME = std::string{ a_key->GetFullName() };
 					auto SNDR = a_key->pickupSound;
-					
+
 					if (!NAME.empty())
 					{
 						if (auto setting = GameSettingColl->GetSetting("sAddItemtoInventory"))
@@ -665,7 +665,7 @@ namespace Hooks
 
 			return false;
 		}
-		
+
 		inline static bool PlayerHasPerk(RE::TESForm* a_perk)
 		{
 			auto PlayerCharacter = RE::PlayerCharacter::GetSingleton();
@@ -702,7 +702,7 @@ namespace Hooks
 		{
 			a_refr->GetLock()->SetLocked(false);
 			FinalizeUnlock(a_refr);
-			
+
 			RE::PlaySound("UILockpickingUnlock");
 			HandleActivateUpdate(a_refr);
 

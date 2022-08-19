@@ -16,7 +16,7 @@ namespace Settings
 			inline static bool bModEnabled{ true };
 			inline static bool bShowRollResults{ false };
 			inline static bool bUnbreakableLockpicks{ false };
-			
+
 			inline static std::int32_t iDetectionEventFailureLevel{ 20 };
 			inline static std::int32_t iDetectionEventSuccessLevel{ 20 };
 			inline static std::int32_t iSkillIndex{ 8 };
@@ -44,7 +44,7 @@ namespace Settings
 			inline static std::int32_t iBonusPerPerks{ 1 };
 			inline static std::int32_t iBonusPerSkills{ 20 };
 		};
-		
+
 		inline static void Update()
 		{
 			if (m_FirstRun)
