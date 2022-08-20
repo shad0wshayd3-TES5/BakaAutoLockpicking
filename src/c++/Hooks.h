@@ -339,23 +339,23 @@ namespace Hooks
 		inline static RE::ActorValue GetSkillFromIndex()
 		{
 			std::vector<RE::ActorValue> Skills = { RE::ActorValue::kOneHanded,
-												   RE::ActorValue::kTwoHanded,
-												   RE::ActorValue::kArchery,
-												   RE::ActorValue::kBlock,
-												   RE::ActorValue::kSmithing,
-												   RE::ActorValue::kHeavyArmor,
-												   RE::ActorValue::kLightArmor,
-												   RE::ActorValue::kPickpocket,
-												   RE::ActorValue::kLockpicking,
-												   RE::ActorValue::kSneak,
-												   RE::ActorValue::kAlchemy,
-												   RE::ActorValue::kSpeech,
-												   RE::ActorValue::kAlteration,
-												   RE::ActorValue::kConjuration,
-												   RE::ActorValue::kDestruction,
-												   RE::ActorValue::kIllusion,
-												   RE::ActorValue::kRestoration,
-												   RE::ActorValue::kEnchanting };
+				                                   RE::ActorValue::kTwoHanded,
+				                                   RE::ActorValue::kArchery,
+				                                   RE::ActorValue::kBlock,
+				                                   RE::ActorValue::kSmithing,
+				                                   RE::ActorValue::kHeavyArmor,
+				                                   RE::ActorValue::kLightArmor,
+				                                   RE::ActorValue::kPickpocket,
+				                                   RE::ActorValue::kLockpicking,
+				                                   RE::ActorValue::kSneak,
+				                                   RE::ActorValue::kAlchemy,
+				                                   RE::ActorValue::kSpeech,
+				                                   RE::ActorValue::kAlteration,
+				                                   RE::ActorValue::kConjuration,
+				                                   RE::ActorValue::kDestruction,
+				                                   RE::ActorValue::kIllusion,
+				                                   RE::ActorValue::kRestoration,
+				                                   RE::ActorValue::kEnchanting };
 
 			return Skills[Settings::MCM::General::iSkillIndex];
 		}

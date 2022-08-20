@@ -6,9 +6,9 @@
 #include "RE/Skyrim.h"
 #include "SKSE/SKSE.h"
 
-#include <SimpleIni.h>
 #include <effolkronium/random.hpp>
 #include <fmt/printf.h>
+#include <SimpleIni.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <xbyak/xbyak.h>
 
@@ -26,9 +26,9 @@ namespace stl
 }
 
 #ifdef SKYRIM_AE
-#	define OFFSET(se, ae) ae
+# define OFFSET(se, ae) ae
 #else
-#	define OFFSET(se, ae) se
+# define OFFSET(se, ae) se
 #endif
 
 #include "Version.h"
