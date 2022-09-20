@@ -112,20 +112,6 @@ namespace Hooks
 				return;
 			}
 
-			auto LockKey = a_refr->GetLock()->key;
-			auto LockLevel = a_refr->GetLockLevel();
-			switch (LockLevel)
-			{
-				case RE::LOCK_LEVEL::kVeryEasy:
-				case RE::LOCK_LEVEL::kEasy:
-				case RE::LOCK_LEVEL::kAverage:
-				case RE::LOCK_LEVEL::kHard:
-				case RE::LOCK_LEVEL::kVeryHard:
-					break;
-				default:
-					return;
-			}
-
 			auto PlayerCharacter = RE::PlayerCharacter::GetSingleton();
 			if (!PlayerCharacter)
 			{
@@ -136,6 +122,38 @@ namespace Hooks
 			if (!GameSettingColl)
 			{
 				return;
+			}
+
+			auto LockKey = a_refr->GetLock()->key;
+			auto LockLevel = a_refr->GetLockLevel();
+			switch (LockLevel)
+			{
+				case RE::LOCK_LEVEL::kVeryEasy:
+				case RE::LOCK_LEVEL::kEasy:
+				case RE::LOCK_LEVEL::kAverage:
+				case RE::LOCK_LEVEL::kHard:
+				case RE::LOCK_LEVEL::kVeryHard:
+					break;
+
+				case RE::LOCK_LEVEL::kRequiresKey:
+					{
+						if (PlayerHasItem(LockKey))
+						{
+							UnlockObject(a_refr);
+							HandleUnlockNotification(LockKey);
+							return;
+						}
+
+						if (auto setting = GameSettingColl->GetSetting("sImpossibleLock"))
+						{
+							RE::DebugNotification(setting->GetString());
+						}
+
+						return;
+					}
+
+				default:
+					return;
 			}
 
 			if (!PlayerHasLockpicks())
