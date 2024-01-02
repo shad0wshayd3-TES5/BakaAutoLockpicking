@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 set(NAME "AutoLockNative")
-set(VERSION 3.4.0)
+set(VERSION 3.5.0)
 set(AE_VERSION 1)
 
 # ---- Options ----
