@@ -2,16 +2,16 @@
 
 namespace Forms
 {
-	static constexpr char PLUGIN_NAME[] = "AutoLockpicking.esp";
+	static constexpr std::string_view PLUGIN_NAME{ "AutoLockpicking.esp"sv };
 
-	inline RE::BGSListForm* AutoLock_Perks_Base{ nullptr };
-	inline RE::BGSListForm* AutoLock_Perks_Locksmith{ nullptr };
-	inline RE::BGSListForm* AutoLock_Perks_Unbreakable{ nullptr };
-	inline RE::BGSListForm* AutoLock_Perks_WaxKey{ nullptr };
-	inline RE::BGSListForm* AutoLock_Items_Lockpick{ nullptr };
-	inline RE::BGSListForm* AutoLock_Items_SkeletonKey{ nullptr };
+	static RE::BGSListForm* AutoLock_Perks_Base{ nullptr };
+	static RE::BGSListForm* AutoLock_Perks_Locksmith{ nullptr };
+	static RE::BGSListForm* AutoLock_Perks_Unbreakable{ nullptr };
+	static RE::BGSListForm* AutoLock_Perks_WaxKey{ nullptr };
+	static RE::BGSListForm* AutoLock_Items_Lockpick{ nullptr };
+	static RE::BGSListForm* AutoLock_Items_SkeletonKey{ nullptr };
 
-	inline bool Register()
+	static bool Register()
 	{
 		if (auto TESDataHandler = RE::TESDataHandler::GetSingleton())
 		{

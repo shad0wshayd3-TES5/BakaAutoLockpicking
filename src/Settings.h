@@ -2,110 +2,61 @@
 
 namespace Settings
 {
-	class MCM
+	namespace MCM
 	{
-	public:
-		class General
+		namespace General
 		{
-		public:
-			inline static bool bActivateAfterPick{ true };
-			inline static bool bDetectionEventFailure{ false };
-			inline static bool bDetectionEventSuccess{ false };
-			inline static bool bIgnoreHasKey{ false };
-			inline static bool bLockpickingCrimeCheck{ true };
-			inline static bool bModEnabled{ true };
-			inline static bool bShowRollResults{ false };
-			inline static bool bUnbreakableLockpicks{ false };
+			static REX::INI::Bool bActivateAfterPick{ "General"sv, "bActivateAfterPick"sv, true };
+			static REX::INI::Bool bDetectionEventFailure{ "General"sv, "bDetectionEventFailure"sv, false };
+			static REX::INI::Bool bDetectionEventSuccess{ "General"sv, "bDetectionEventSuccess"sv, false };
+			static REX::INI::Bool bIgnoreHasKey{ "General"sv, "bIgnoreHasKey"sv, false };
+			static REX::INI::Bool bLockpickingCrimeCheck{ "General"sv, "bLockpickingCrimeCheck"sv, true };
+			static REX::INI::Bool bModEnabled{ "General"sv, "bModEnabled"sv, true };
+			static REX::INI::Bool bShowRollResults{ "General"sv, "bShowRollResults"sv, false };
+			static REX::INI::Bool bUnbreakableLockpicks{ "General"sv, "bUnbreakableLockpicks"sv, false };
 
-			inline static std::int32_t iDetectionEventFailureLevel{ 20 };
-			inline static std::int32_t iDetectionEventSuccessLevel{ 20 };
-			inline static std::int32_t iSkillIndex{ 8 };
+			static REX::INI::I32 iDetectionEventFailureLevel{ "General"sv, "iDetectionEventFailureLevel"sv, 20 };
+			static REX::INI::I32 iDetectionEventSuccessLevel{ "General"sv, "iDetectionEventSuccessLevel"sv, 20 };
+			static REX::INI::I32 iSkillIndex{ "General"sv, "iSkillIndex"sv, 8 };
 
-			inline static std::string sCriticalFailure;
-			inline static std::string sCriticalSuccess;
-			inline static std::string sShowRollResults;
-		};
+			static std::string sCriticalFailure;
+			static std::string sCriticalSuccess;
+			static std::string sShowRollResults;
+		}
 
-		class Rolls
+		namespace Rolls
 		{
-		public:
-			inline static bool bCriticalFailure{ false };
-			inline static bool bCriticalSuccess{ true };
+			static REX::INI::Bool bCriticalFailure{ "Rolls"sv, "bCriticalFailure"sv, false };
+			static REX::INI::Bool bCriticalSuccess{ "Rolls"sv, "bCriticalSuccess"sv, true };
 
-			inline static std::int32_t iDCNovice{ 10 };
-			inline static std::int32_t iDCApprentice{ 12 };
-			inline static std::int32_t iDCAdept{ 15 };
-			inline static std::int32_t iDCExpert{ 18 };
-			inline static std::int32_t iDCMaster{ 20 };
-			inline static std::int32_t iPlayerDiceMin{ 1 };
-			inline static std::int32_t iPlayerDiceMax{ 20 };
-			inline static std::int32_t iBonusPerBonus{ 0 };
-			inline static std::int32_t iBonusPerLcksm{ 1 };
-			inline static std::int32_t iBonusPerPerks{ 1 };
-			inline static std::int32_t iBonusPerSkills{ 20 };
-		};
+			static REX::INI::I32 iDCNovice{ "Rolls"sv, "iDCNovice"sv, 10 };
+			static REX::INI::I32 iDCApprentice{ "Rolls"sv, "iDCApprentice"sv, 12 };
+			static REX::INI::I32 iDCAdept{ "Rolls"sv, "iDCAdept"sv, 15 };
+			static REX::INI::I32 iDCExpert{ "Rolls"sv, "iDCExpert"sv, 18 };
+			static REX::INI::I32 iDCMaster{ "Rolls"sv, "iDCMaster"sv, 20 };
+			static REX::INI::I32 iPlayerDiceMin{ "Rolls"sv, "iPlayerDiceMin"sv, 1 };
+			static REX::INI::I32 iPlayerDiceMax{ "Rolls"sv, "iPlayerDiceMax"sv, 20 };
+			static REX::INI::I32 iBonusPerBonus{ "Rolls"sv, "iBonusPerBonus"sv, 0 };
+			static REX::INI::I32 iBonusPerLcksm{ "Rolls"sv, "iBonusPerLcksm"sv, 1 };
+			static REX::INI::I32 iBonusPerPerks{ "Rolls"sv, "iBonusPerPerks"sv, 1 };
+			static REX::INI::I32 iBonusPerSkills{ "Rolls"sv, "iBonusPerSkills"sv, 20 };
+		}
 
-		inline static void Update()
+		static void Update(bool a_firstRun)
 		{
-			if (m_FirstRun)
+			if (a_firstRun)
 			{
 				GetFormatStrings();
-				m_FirstRun = false;
 			}
 
-			m_ini_base.LoadFile("Data/MCM/Config/AutoLockpicking/settings.ini");
-			m_ini_user.LoadFile("Data/MCM/Settings/AutoLockpicking.ini");
-
-			// General
-			GetModSettingBool("General", "bActivateAfterPick", General::bActivateAfterPick);
-			GetModSettingBool("General", "bDetectionEventFailure", General::bDetectionEventFailure);
-			GetModSettingBool("General", "bDetectionEventSuccess", General::bDetectionEventSuccess);
-			GetModSettingBool("General", "bIgnoreHasKey", General::bIgnoreHasKey);
-			GetModSettingBool("General", "bLockpickingCrimeCheck", General::bLockpickingCrimeCheck);
-			GetModSettingBool("General", "bModEnabled", General::bModEnabled);
-			GetModSettingBool("General", "bShowRollResults", General::bShowRollResults);
-			GetModSettingBool("General", "bUnbreakableLockpicks", General::bUnbreakableLockpicks);
-			GetModSettingLong("General", "iDetectionEventFailureLevel", General::iDetectionEventFailureLevel);
-			GetModSettingLong("General", "iDetectionEventSuccessLevel", General::iDetectionEventSuccessLevel);
-			GetModSettingLong("General", "iSkillIndex", General::iSkillIndex);
-
-			// Rolls
-			GetModSettingBool("Rolls", "bCriticalFailure", Rolls::bCriticalFailure);
-			GetModSettingBool("Rolls", "bCriticalSuccess", Rolls::bCriticalSuccess);
-			GetModSettingLong("Rolls", "iDCNovice", Rolls::iDCNovice);
-			GetModSettingLong("Rolls", "iDCApprentice", Rolls::iDCApprentice);
-			GetModSettingLong("Rolls", "iDCAdept", Rolls::iDCAdept);
-			GetModSettingLong("Rolls", "iDCExpert", Rolls::iDCExpert);
-			GetModSettingLong("Rolls", "iDCMaster", Rolls::iDCMaster);
-			GetModSettingLong("Rolls", "iPlayerDiceMin", Rolls::iPlayerDiceMin);
-			GetModSettingLong("Rolls", "iPlayerDiceMax", Rolls::iPlayerDiceMax);
-			GetModSettingLong("Rolls", "iBonusPerBonus", Rolls::iBonusPerBonus);
-			GetModSettingLong("Rolls", "iBonusPerLcksm", Rolls::iBonusPerLcksm);
-			GetModSettingLong("Rolls", "iBonusPerPerks", Rolls::iBonusPerPerks);
-			GetModSettingLong("Rolls", "iBonusPerSkills", Rolls::iBonusPerSkills);
-
-			m_ini_base.Reset();
-			m_ini_user.Reset();
+			const auto ini = REX::INI::SettingStore::GetSingleton();
+			ini->Init(
+				"Data/SKSE/plugins/BakaAutoLockpicking.ini",
+				"Data/SKSE/plugins/BakaAutoLockpickingCustom.ini");
+			ini->Load();
 		}
 
-		inline static bool m_FirstRun{ true };
-
-	private:
-		inline static void GetModSettingBool(const std::string& a_section, const std::string& a_setting, bool& a_value)
-		{
-			auto base = m_ini_base.GetBoolValue(a_section.c_str(), a_setting.c_str(), a_value);
-			auto user = m_ini_user.GetBoolValue(a_section.c_str(), a_setting.c_str(), base);
-			a_value = user;
-		}
-
-		inline static void GetModSettingLong(const std::string& a_section, const std::string& a_setting, std::int32_t& a_value)
-		{
-			auto base = m_ini_base.GetLongValue(a_section.c_str(), a_setting.c_str(), a_value);
-			auto user = m_ini_user.GetLongValue(a_section.c_str(), a_setting.c_str(), base);
-			a_value = static_cast<std::int32_t>(user);
-		}
-
-		inline static void GetFormatStrings()
+		static void GetFormatStrings()
 		{
 			if (auto BSGFxMgr = RE::BSScaleformManager::GetSingleton(); BSGFxMgr && BSGFxMgr->loader)
 			{
@@ -130,8 +81,5 @@ namespace Settings
 				}
 			}
 		}
-
-		inline static CSimpleIniA m_ini_base{ true };
-		inline static CSimpleIniA m_ini_user{ true };
-	};
+	}
 }

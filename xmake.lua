@@ -35,6 +35,9 @@ target("BakaAutoLockpicking")
     -- bind local dependencies
     add_deps("commonlibsse")
 
+    -- bind package dependencies
+    add_packages("effolkronium-random")
+
     -- add commonlibsse plugin
     add_rules("commonlibsse.plugin", {
         name = "BakaAutoLockpicking",
