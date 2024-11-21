@@ -36,7 +36,7 @@ namespace Hooks
 		}
 
 	private:
-		template<std::int32_t a_ID, std::int32_t a_OF>
+		template <std::int32_t a_ID, std::int32_t a_OF>
 		class hkPlayerHasKey
 		{
 		public:
@@ -61,7 +61,7 @@ namespace Hooks
 			inline static REL::Relocation<decltype(PlayerHasKey)> _PlayerHasKey;
 		};
 
-		template<std::int32_t a_ID, std::int32_t a_OF>
+		template <std::int32_t a_ID, std::int32_t a_OF>
 		class hkTryUnlockObject
 		{
 		public:
@@ -121,32 +121,32 @@ namespace Hooks
 			auto LockLevel = a_refr->GetLockLevel();
 			switch (LockLevel)
 			{
-				case RE::LOCK_LEVEL::kVeryEasy:
-				case RE::LOCK_LEVEL::kEasy:
-				case RE::LOCK_LEVEL::kAverage:
-				case RE::LOCK_LEVEL::kHard:
-				case RE::LOCK_LEVEL::kVeryHard:
-					break;
+			case RE::LOCK_LEVEL::kVeryEasy:
+			case RE::LOCK_LEVEL::kEasy:
+			case RE::LOCK_LEVEL::kAverage:
+			case RE::LOCK_LEVEL::kHard:
+			case RE::LOCK_LEVEL::kVeryHard:
+				break;
 
-				case RE::LOCK_LEVEL::kRequiresKey:
-					{
-						if (PlayerHasItem(LockKey))
-						{
-							UnlockObject(a_refr);
-							HandleUnlockNotification(LockKey);
-							return;
-						}
-
-						if (auto setting = GameSettingColl->GetSetting("sImpossibleLock"))
-						{
-							RE::DebugNotification(setting->GetString());
-						}
-
-						return;
-					}
-
-				default:
+			case RE::LOCK_LEVEL::kRequiresKey:
+			{
+				if (PlayerHasItem(LockKey))
+				{
+					UnlockObject(a_refr);
+					HandleUnlockNotification(LockKey);
 					return;
+				}
+
+				if (auto setting = GameSettingColl->GetSetting("sImpossibleLock"))
+				{
+					RE::DebugNotification(setting->GetString());
+				}
+
+				return;
+			}
+
+			default:
+				return;
 			}
 
 			if (!PlayerHasLockpicks())
@@ -183,7 +183,7 @@ namespace Hooks
 				if (RollMin == RollVal)
 				{
 					RE::DebugNotification(Settings::MCM::General::sCriticalFailure.c_str());
-					PlayerCharacter->currentProcess->KnockExplosion(PlayerCharacter,PlayerCharacter->data.location,5.0f);
+					PlayerCharacter->currentProcess->KnockExplosion(PlayerCharacter, PlayerCharacter->data.location, 5.0f);
 				}
 			}
 
@@ -205,7 +205,7 @@ namespace Hooks
 
 				if (Settings::MCM::General::bDetectionEventSuccess.GetValue())
 				{
-					PlayerCharacter->currentProcess->SetActorsDetectionEvent(PlayerCharacter,a_refr->data.location,Settings::MCM::General::iDetectionEventSuccessLevel.GetValue(),a_refr);
+					PlayerCharacter->currentProcess->SetActorsDetectionEvent(PlayerCharacter, a_refr->data.location, Settings::MCM::General::iDetectionEventSuccessLevel.GetValue(), a_refr);
 				}
 			}
 			else
@@ -215,7 +215,7 @@ namespace Hooks
 
 				if (Settings::MCM::General::bDetectionEventFailure.GetValue())
 				{
-					PlayerCharacter->currentProcess->SetActorsDetectionEvent(PlayerCharacter,a_refr->data.location,Settings::MCM::General::iDetectionEventFailureLevel.GetValue(),a_refr);
+					PlayerCharacter->currentProcess->SetActorsDetectionEvent(PlayerCharacter, a_refr->data.location, Settings::MCM::General::iDetectionEventFailureLevel.GetValue(), a_refr);
 				}
 			}
 
@@ -261,16 +261,16 @@ namespace Hooks
 		{
 			switch (a_lockLevel)
 			{
-				case RE::LOCK_LEVEL::kEasy:
-					return Settings::MCM::Rolls::iDCApprentice.GetValue();
-				case RE::LOCK_LEVEL::kAverage:
-					return Settings::MCM::Rolls::iDCAdept.GetValue();
-				case RE::LOCK_LEVEL::kHard:
-					return Settings::MCM::Rolls::iDCExpert.GetValue();
-				case RE::LOCK_LEVEL::kVeryHard:
-					return Settings::MCM::Rolls::iDCMaster.GetValue();
-				default:
-					return Settings::MCM::Rolls::iDCNovice.GetValue();
+			case RE::LOCK_LEVEL::kEasy:
+				return Settings::MCM::Rolls::iDCApprentice.GetValue();
+			case RE::LOCK_LEVEL::kAverage:
+				return Settings::MCM::Rolls::iDCAdept.GetValue();
+			case RE::LOCK_LEVEL::kHard:
+				return Settings::MCM::Rolls::iDCExpert.GetValue();
+			case RE::LOCK_LEVEL::kVeryHard:
+				return Settings::MCM::Rolls::iDCMaster.GetValue();
+			default:
+				return Settings::MCM::Rolls::iDCNovice.GetValue();
 			}
 		}
 
@@ -428,7 +428,7 @@ namespace Hooks
 				if (ProcessLists->RequestHighestDetectionLevelAgainstActor(PlayerCharacter, LOSCount) > 0)
 				{
 					auto Crime{ 1.0f };
-					RE::BGSEntryPoint::HandleEntryPoint(RE::BGSEntryPoint::ENTRY_POINT::kModLockpickingCrimeChance,PlayerCharacter,a_refr,&Crime);
+					RE::BGSEntryPoint::HandleEntryPoint(RE::BGSEntryPoint::ENTRY_POINT::kModLockpickingCrimeChance, PlayerCharacter, a_refr, &Crime);
 
 					auto Chance = effolkronium::random_thread_local::get<float>(0.0f, 1.0f);
 					if (Chance < Crime)
@@ -464,47 +464,47 @@ namespace Hooks
 			auto LockpickingSkill = GetSkillFromIndex();
 			switch (a_lockLevel)
 			{
-				case RE::LOCK_LEVEL::kVeryEasy:
-					if (auto setting = GameSettingColl->GetSetting("fSkillUsageLockPickVeryEasy"))
-					{
-						PlayerCharacter->AddSkillExperience(LockpickingSkill, setting->GetFloat());
-					}
-					return;
+			case RE::LOCK_LEVEL::kVeryEasy:
+				if (auto setting = GameSettingColl->GetSetting("fSkillUsageLockPickVeryEasy"))
+				{
+					PlayerCharacter->AddSkillExperience(LockpickingSkill, setting->GetFloat());
+				}
+				return;
 
-				case RE::LOCK_LEVEL::kEasy:
-					if (auto setting = GameSettingColl->GetSetting("fSkillUsageLockPickEasy"))
-					{
-						PlayerCharacter->AddSkillExperience(LockpickingSkill, setting->GetFloat());
-					}
-					return;
+			case RE::LOCK_LEVEL::kEasy:
+				if (auto setting = GameSettingColl->GetSetting("fSkillUsageLockPickEasy"))
+				{
+					PlayerCharacter->AddSkillExperience(LockpickingSkill, setting->GetFloat());
+				}
+				return;
 
-				case RE::LOCK_LEVEL::kAverage:
-					if (auto setting = GameSettingColl->GetSetting("fSkillUsageLockPickAverage"))
-					{
-						PlayerCharacter->AddSkillExperience(LockpickingSkill, setting->GetFloat());
-					}
-					return;
+			case RE::LOCK_LEVEL::kAverage:
+				if (auto setting = GameSettingColl->GetSetting("fSkillUsageLockPickAverage"))
+				{
+					PlayerCharacter->AddSkillExperience(LockpickingSkill, setting->GetFloat());
+				}
+				return;
 
-				case RE::LOCK_LEVEL::kHard:
-					if (auto setting = GameSettingColl->GetSetting("fSkillUsageLockPickHard"))
-					{
-						PlayerCharacter->AddSkillExperience(LockpickingSkill, setting->GetFloat());
-					}
-					return;
+			case RE::LOCK_LEVEL::kHard:
+				if (auto setting = GameSettingColl->GetSetting("fSkillUsageLockPickHard"))
+				{
+					PlayerCharacter->AddSkillExperience(LockpickingSkill, setting->GetFloat());
+				}
+				return;
 
-				case RE::LOCK_LEVEL::kVeryHard:
-					if (auto setting = GameSettingColl->GetSetting("fSkillUsageLockPickVeryHard"))
-					{
-						PlayerCharacter->AddSkillExperience(LockpickingSkill, setting->GetFloat());
-					}
-					return;
+			case RE::LOCK_LEVEL::kVeryHard:
+				if (auto setting = GameSettingColl->GetSetting("fSkillUsageLockPickVeryHard"))
+				{
+					PlayerCharacter->AddSkillExperience(LockpickingSkill, setting->GetFloat());
+				}
+				return;
 
-				default:
-					if (auto setting = GameSettingColl->GetSetting("fSkillUsageLockPickBroken"))
-					{
-						PlayerCharacter->AddSkillExperience(LockpickingSkill, setting->GetFloat());
-					}
-					return;
+			default:
+				if (auto setting = GameSettingColl->GetSetting("fSkillUsageLockPickBroken"))
+				{
+					PlayerCharacter->AddSkillExperience(LockpickingSkill, setting->GetFloat());
+				}
+				return;
 			}
 		}
 
@@ -523,7 +523,7 @@ namespace Hooks
 					if (PlayerHasItem(form))
 					{
 						RE::PlaySound("UILockpickingPickBreak");
-						PlayerCharacter->RemoveItem(form->As<RE::TESBoundObject>(),1,RE::ITEM_REMOVE_REASON::kRemove,nullptr,nullptr);
+						PlayerCharacter->RemoveItem(form->As<RE::TESBoundObject>(), 1, RE::ITEM_REMOVE_REASON::kRemove, nullptr, nullptr);
 						HandleExperience(RE::LOCK_LEVEL::kUnlocked);
 						break;
 					}
@@ -586,7 +586,7 @@ namespace Hooks
 						if (auto setting = GameSettingColl->GetSetting("sAddItemtoInventory"))
 						{
 							auto result = std::format("{} {}"sv, NAME, setting->GetString());
-							RE::DebugNotification(result.c_str(),SNDR ? SNDR->GetFormEditorID() : "ITMKeyUpSD");
+							RE::DebugNotification(result.c_str(), SNDR ? SNDR->GetFormEditorID() : "ITMKeyUpSD");
 							return;
 						}
 					}
