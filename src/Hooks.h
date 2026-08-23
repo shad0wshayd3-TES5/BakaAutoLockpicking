@@ -10,15 +10,15 @@ namespace Hooks
 	public:
 		static void InstallHooks()
 		{
-			hkPlayerHasKey<OFFSET(17485, 17887), OFFSET(0x0BA, 0x0BA)>::Install();
-			hkPlayerHasKey<OFFSET(17521, 17922), OFFSET(0x223, 0x239)>::Install();
-			hkTryUnlockObject<OFFSET(17485, 17887), OFFSET(0x1AC, 0x18A)>::Install();
-			hkTryUnlockObject<OFFSET(17521, 17922), OFFSET(0x313, 0x32A)>::Install();
+			hkPlayerHasKey<17887, 0x0BA>::Install();
+			hkPlayerHasKey<17922, 0x239>::Install();
+			hkTryUnlockObject<17887, 0x18A>::Install();
+			hkTryUnlockObject<17922, 0x32A>::Install();
 		}
 
 		static std::vector<std::string> GetRollModifiers()
 		{
-			Settings::MCM::Update();
+			Settings::MCM::Update(false);
 
 			auto Skill = GetRollModifier_Skill();
 			auto Perks = GetRollModifier_Perks();
@@ -139,7 +139,7 @@ namespace Hooks
 
 				if (auto setting = GameSettingColl->GetSetting("sImpossibleLock"))
 				{
-					RE::DebugNotification(setting->GetString());
+					RE::SendHUDMessage::ShowHUDMessage(setting->GetString());
 				}
 
 				return;
@@ -153,7 +153,7 @@ namespace Hooks
 			{
 				if (auto setting = GameSettingColl->GetSetting("sOutOfLockpicks"))
 				{
-					RE::DebugNotification(setting->GetString());
+					RE::SendHUDMessage::ShowHUDMessage(setting->GetString());
 				}
 
 				if (PlayerHasItem(LockKey))
@@ -173,16 +173,16 @@ namespace Hooks
 
 			if (Settings::MCM::General::bShowRollResults.GetValue())
 			{
-				auto result = std::vformat(Settings::MCM::General::sShowRollResults, std::make_format_args(LockVal, RollVal, RollMod));
-				SKSE::log::info("{:s}"sv, result);
-				RE::DebugNotification(result.c_str());
+				auto result = std::vformat(Settings::MCM::Runtime::sShowRollResults, std::make_format_args(LockVal, RollVal, RollMod));
+				REX::INFO("{:s}"sv, result);
+				RE::SendHUDMessage::ShowHUDMessage(result.c_str());
 			}
 
 			if (Settings::MCM::Rolls::bCriticalFailure.GetValue())
 			{
 				if (RollMin == RollVal)
 				{
-					RE::DebugNotification(Settings::MCM::General::sCriticalFailure.c_str());
+					RE::SendHUDMessage::ShowHUDMessage(Settings::MCM::Runtime::sCriticalFailure.c_str());
 					PlayerCharacter->currentProcess->KnockExplosion(PlayerCharacter, PlayerCharacter->data.location, 5.0f);
 				}
 			}
@@ -191,7 +191,7 @@ namespace Hooks
 			{
 				if (RollMax == RollVal)
 				{
-					RE::DebugNotification(Settings::MCM::General::sCriticalSuccess.c_str());
+					RE::SendHUDMessage::ShowHUDMessage(Settings::MCM::Runtime::sCriticalSuccess.c_str());
 					HandleExperience(RE::LOCK_LEVEL::kVeryHard);
 				}
 			}
@@ -552,7 +552,7 @@ namespace Hooks
 					if (!result.empty())
 					{
 						result = std::vformat(result, std::make_format_args(NAME));
-						RE::DebugNotification(result.c_str());
+						RE::SendHUDMessage::ShowHUDMessage(result.c_str());
 					}
 				}
 			}
@@ -576,22 +576,24 @@ namespace Hooks
 			{
 				if (!PlayerHasItem(a_key))
 				{
+					auto sound = a_key->pickupSound->GetFormEditorID();
+					if (sound == nullptr || sound[0] == '\0')
+						sound = "ITMKeyUpSD";
+
 					PlayerCharacter->AddObjectToContainer(a_key, nullptr, 1, nullptr);
 
 					auto NAME = std::string{ a_key->GetFullName() };
-					auto SNDR = a_key->pickupSound;
-
 					if (!NAME.empty())
 					{
 						if (auto setting = GameSettingColl->GetSetting("sAddItemtoInventory"))
 						{
 							auto result = std::format("{} {}"sv, NAME, setting->GetString());
-							RE::DebugNotification(result.c_str(), SNDR ? SNDR->GetFormEditorID() : "ITMKeyUpSD");
+							RE::SendHUDMessage::ShowHUDMessage(result.c_str(), sound);
 							return;
 						}
 					}
 
-					RE::PlaySound(SNDR ? SNDR->GetFormEditorID() : "ITMKeyUpSD");
+					RE::PlaySound(sound);
 				}
 			}
 		}

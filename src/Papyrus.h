@@ -31,7 +31,7 @@ namespace Papyrus::AutoLockNative
 		a_vm->RegisterFunction("GetVersion"sv, CLASS_NAME, GetVersion, true);
 		a_vm->RegisterFunction("GetRollModifiers"sv, CLASS_NAME, GetRollModifiers);
 		a_vm->RegisterFunction("UpdateSettings"sv, CLASS_NAME, UpdateSettings);
-		SKSE::log::info("Registered funcs for class {:s}"sv, CLASS_NAME);
+		REX::INFO("Registered funcs for class {:s}"sv, CLASS_NAME);
 
 		return true;
 	}

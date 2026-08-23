@@ -18,10 +18,6 @@ namespace Settings
 			static REX::INI::I32 iDetectionEventFailureLevel{ "General"sv, "iDetectionEventFailureLevel"sv, 20 };
 			static REX::INI::I32 iDetectionEventSuccessLevel{ "General"sv, "iDetectionEventSuccessLevel"sv, 20 };
 			static REX::INI::I32 iSkillIndex{ "General"sv, "iSkillIndex"sv, 8 };
-
-			static std::string sCriticalFailure;
-			static std::string sCriticalSuccess;
-			static std::string sShowRollResults;
 		}
 
 		namespace Rolls
@@ -40,6 +36,13 @@ namespace Settings
 			static REX::INI::I32 iBonusPerLcksm{ "Rolls"sv, "iBonusPerLcksm"sv, 1 };
 			static REX::INI::I32 iBonusPerPerks{ "Rolls"sv, "iBonusPerPerks"sv, 1 };
 			static REX::INI::I32 iBonusPerSkills{ "Rolls"sv, "iBonusPerSkills"sv, 20 };
+		}
+
+		namespace Runtime
+		{
+			static std::string sCriticalFailure;
+			static std::string sCriticalSuccess;
+			static std::string sShowRollResults;
 		}
 
 		static void Update(bool a_firstRun)
@@ -75,9 +78,9 @@ namespace Settings
 						sprintf_s(a_output.data(), 512, "%ws", GFxBuffer.c_str());
 					};
 
-					FetchTranslation(BSGFxTrns.get(), L"$AL_Message_CriticalFailure", General::sCriticalFailure);
-					FetchTranslation(BSGFxTrns.get(), L"$AL_Message_CriticalSuccess", General::sCriticalSuccess);
-					FetchTranslation(BSGFxTrns.get(), L"$AL_Message_ShowRollResults", General::sShowRollResults);
+					FetchTranslation(BSGFxTrns.get(), L"$AL_Message_CriticalFailure", Runtime::sCriticalFailure);
+					FetchTranslation(BSGFxTrns.get(), L"$AL_Message_CriticalSuccess", Runtime::sCriticalSuccess);
+					FetchTranslation(BSGFxTrns.get(), L"$AL_Message_ShowRollResults", Runtime::sShowRollResults);
 				}
 			}
 		}
