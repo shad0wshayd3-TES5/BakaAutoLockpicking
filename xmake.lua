@@ -3,7 +3,7 @@ includes("lib/commonlibsse")
 
 -- set project constants
 set_project("BakaAutoLockpicking")
-set_version("5.0.0")
+set_version("4.0.0")
 set_license("GPL-3.0")
 set_languages("c++23")
 set_warnings("allextra")
