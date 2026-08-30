@@ -45,6 +45,33 @@ namespace Settings
 			static std::string sShowRollResults;
 		}
 
+		static void GetFormatStrings()
+		{
+			if (auto manager = RE::BSScaleformManager::GetSingleton();
+				manager && manager->loader)
+			{
+				if (auto translator = manager->loader->GetState<RE::BSScaleformTranslator>(RE::GFxState::StateType::kTranslator))
+				{
+					auto FetchTranslation = [](RE::BSScaleformTranslator* a_trns, const wchar_t* a_key, std::string& a_output)
+					{
+						RE::GFxTranslator::TranslateInfo info;
+						RE::GFxWStringBuffer             buffer;
+
+						info.key = a_key;
+						info.result = std::addressof(buffer);
+						a_trns->Translate(std::addressof(info));
+
+						a_output.resize(512);
+						sprintf_s(a_output.data(), 512, "%ws", buffer.c_str());
+					};
+
+					FetchTranslation(translator.get(), L"$AL_Message_CriticalFailure", Runtime::sCriticalFailure);
+					FetchTranslation(translator.get(), L"$AL_Message_CriticalSuccess", Runtime::sCriticalSuccess);
+					FetchTranslation(translator.get(), L"$AL_Message_ShowRollResults", Runtime::sShowRollResults);
+				}
+			}
+		}
+
 		static void Update(bool a_firstRun)
 		{
 			if (a_firstRun)
@@ -57,32 +84,6 @@ namespace Settings
 				"Data/SKSE/plugins/BakaAutoLockpicking.ini",
 				"Data/SKSE/plugins/BakaAutoLockpickingCustom.ini");
 			ini->Load();
-		}
-
-		static void GetFormatStrings()
-		{
-			if (auto BSGFxMgr = RE::BSScaleformManager::GetSingleton(); BSGFxMgr && BSGFxMgr->loader)
-			{
-				if (auto BSGFxTrns = BSGFxMgr->loader->GetState<RE::BSScaleformTranslator>(RE::GFxState::StateType::kTranslator))
-				{
-					auto FetchTranslation = [](RE::BSScaleformTranslator* a_trns, const wchar_t* a_key, std::string& a_output)
-					{
-						RE::GFxTranslator::TranslateInfo TrnsInfo;
-						RE::GFxWStringBuffer GFxBuffer;
-
-						TrnsInfo.key = a_key;
-						TrnsInfo.result = std::addressof(GFxBuffer);
-						a_trns->Translate(std::addressof(TrnsInfo));
-
-						a_output.resize(512);
-						sprintf_s(a_output.data(), 512, "%ws", GFxBuffer.c_str());
-					};
-
-					FetchTranslation(BSGFxTrns.get(), L"$AL_Message_CriticalFailure", Runtime::sCriticalFailure);
-					FetchTranslation(BSGFxTrns.get(), L"$AL_Message_CriticalSuccess", Runtime::sCriticalSuccess);
-					FetchTranslation(BSGFxTrns.get(), L"$AL_Message_ShowRollResults", Runtime::sShowRollResults);
-				}
-			}
 		}
 	}
 }

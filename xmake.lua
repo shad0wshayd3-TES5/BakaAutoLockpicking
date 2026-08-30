@@ -2,7 +2,7 @@
 includes("lib/commonlibsse")
 
 -- set project constants
-set_project("BakaAutoLockpicking")
+set_project("AutoLockNative")
 set_version("4.0.0")
 set_license("GPL-3.0")
 set_languages("c++23")
@@ -14,19 +14,14 @@ add_rules("plugin.vsxmake.autoupdate")
 
 -- set configs
 set_config("commonlib_ini", true)
-
--- require package dependencies
-add_requires("effolkronium-random")
+set_config("commonlib_random", true)
 
 -- define targets
-target("BakaAutoLockpicking")
+target("AutoLockNative")
     add_rules("commonlibsse.plugin", {
-        name = "BakaAutoLockpicking",
+        name = "AutoLockNative",
         author = "shad0wshayd3"
     })
-
-    -- bind package dependencies
-    add_packages("effolkronium-random")
 
     -- add src files
     add_files("src/**.cpp")

@@ -5,91 +5,219 @@
 
 namespace Hooks
 {
+	class detail
+	{
+	public:
+		class Player
+		{
+		public:
+			static auto GetPerkCount(RE::BGSListForm* a_formList)
+			{
+				std::int32_t result{ 0 };
+				if (auto player = RE::PlayerCharacter::GetSingleton();
+					player && a_formList)
+				{
+					a_formList->ForEachForm(
+						[&](RE::TESForm* a_form)
+						{
+							if (auto perk = a_form->As<RE::BGSPerk>();
+								perk && player->HasPerk(perk))
+							{
+								result++;
+							}
+
+							return RE::BSContainer::ForEachResult::kContinue;
+						});
+				}
+
+				return result;
+			}
+
+			static auto GetValue(RE::ActorValue a_value)
+			{
+				if (auto player = RE::PlayerCharacter::GetSingleton())
+				{
+					return player->GetActorValue(a_value);
+				}
+
+				return 0.0f;
+			}
+
+			static bool HasPerk(RE::BGSListForm* a_formList)
+			{
+				auto result{ false };
+				if (auto player = RE::PlayerCharacter::GetSingleton();
+					player && a_formList)
+				{
+					a_formList->ForEachForm(
+						[&](RE::TESForm* a_form)
+						{
+							if (auto perk = a_form->As<RE::BGSPerk>();
+								perk && player->HasPerk(perk))
+							{
+								result = true;
+								return RE::BSContainer::ForEachResult::kStop;
+							}
+
+							return RE::BSContainer::ForEachResult::kContinue;
+						});
+				}
+
+				return result;
+			}
+
+			static bool HasPerk(RE::BGSPerk* a_perk)
+			{
+				if (auto player = RE::PlayerCharacter::GetSingleton();
+					player && a_perk)
+				{
+					return player->HasPerk(a_perk);
+				}
+
+				return false;
+			}
+
+			static bool HasObject(RE::BGSListForm* a_formList)
+			{
+				auto result{ false };
+				if (auto player = RE::PlayerCharacter::GetSingleton();
+					player && a_formList)
+				{
+					a_formList->ForEachForm(
+						[&](RE::TESForm* a_form)
+						{
+							if (auto object = a_form->As<RE::TESBoundObject>();
+								object && player->GetItemCount(object))
+							{
+								result = true;
+								return RE::BSContainer::ForEachResult::kStop;
+							}
+
+							return RE::BSContainer::ForEachResult::kContinue;
+						});
+				}
+
+				return result;
+			}
+
+			static bool HasObject(RE::TESBoundObject* a_object)
+			{
+				if (auto player = RE::PlayerCharacter::GetSingleton();
+					player && a_object)
+				{
+					return player->GetItemCount(a_object);
+				}
+
+				return false;
+			}
+
+			static bool HasBreakable()
+			{
+				if (Settings::MCM::General::bUnbreakableLockpicks)
+					return false;
+				if (HasObject(Forms::AutoLock_Items_SkeletonKey))
+					return false;
+				if (HasPerk(Forms::AutoLock_Perks_Unbreakable))
+					return false;
+				return true;
+			}
+
+			static bool HasLockpicks()
+			{
+				if (HasObject(Forms::AutoLock_Items_Lockpick))
+					return true;
+				if (HasObject(Forms::AutoLock_Items_SkeletonKey))
+					return true;
+				return false;
+			}
+
+			static bool HasWaxKey()
+			{
+				return HasPerk(Forms::AutoLock_Perks_WaxKey);
+			}
+		};
+
+		static void ShowMessage(std::string_view a_setting, const char* a_format = nullptr, const char* a_sound = nullptr)
+		{
+			auto settings = RE::GameSettingCollection::GetSingleton();
+			if (!settings)
+				return;
+
+			auto setting = settings->GetSetting(a_setting.data());
+			if (!setting)
+				return;
+
+			auto message = setting->GetString();
+			if (REX::STR::IS_EMPTY(message))
+				return;
+
+			if (a_format)
+			{
+				auto vformat = std::vformat(message, std::make_format_args(a_format));
+				RE::SendHUDMessage::ShowHUDMessage(vformat.data(), a_sound);
+			}
+			else
+			{
+				RE::SendHUDMessage::ShowHUDMessage(message, a_sound);
+			}
+		}
+	};
+
 	class AutoLockNative
 	{
 	public:
-		static void InstallHooks()
-		{
-			hkPlayerHasKey<17887, 0x0BA>::Install();
-			hkPlayerHasKey<17922, 0x239>::Install();
-			hkTryUnlockObject<17887, 0x18A>::Install();
-			hkTryUnlockObject<17922, 0x32A>::Install();
-		}
-
 		static std::vector<std::string> GetRollModifiers()
 		{
 			Settings::MCM::Update(false);
 
-			auto Skill = GetRollModifier_Skill();
-			auto Perks = GetRollModifier_Perks();
-			auto LCKSM = GetRollModifier_LCKSM();
-			auto Bonus = GetRollModifier_Bonus();
-			auto Total = Skill + Perks + LCKSM + Bonus;
+			std::int32_t stat = GetRollModStat();
+			std::int32_t perk = GetRollModPerk();
+			std::int32_t lksm = GetRollModLKSM();
+			std::int32_t xtra = Settings::MCM::Rolls::iBonusPerBonus;
+			std::int32_t mods = stat + perk + lksm + xtra;
 
 			return std::vector<std::string>{
-				Skill >= 0 ? std::format("+{:d}"sv, Skill) : std::format("{:d}"sv, Skill),
-				Perks >= 0 ? std::format("+{:d}"sv, Perks) : std::format("{:d}"sv, Perks),
-				LCKSM >= 0 ? std::format("+{:d}"sv, LCKSM) : std::format("{:d}"sv, LCKSM),
-				Bonus >= 0 ? std::format("+{:d}"sv, Bonus) : std::format("{:d}"sv, Bonus),
-				Total >= 0 ? std::format("+{:d}"sv, Total) : std::format("{:d}"sv, Total)
+				stat >= 0 ? std::format("+{:d}"sv, stat) : std::format("{:d}"sv, stat),
+				perk >= 0 ? std::format("+{:d}"sv, perk) : std::format("{:d}"sv, perk),
+				lksm >= 0 ? std::format("+{:d}"sv, lksm) : std::format("{:d}"sv, lksm),
+				xtra >= 0 ? std::format("+{:d}"sv, xtra) : std::format("{:d}"sv, xtra),
+				mods >= 0 ? std::format("+{:d}"sv, mods) : std::format("{:d}"sv, mods)
 			};
 		}
 
 	private:
-		template <std::int32_t a_ID, std::int32_t a_OF>
 		class hkPlayerHasKey
 		{
-		public:
-			static void Install()
-			{
-				REL::Relocation<std::uintptr_t> target{ REL::ID(a_ID), a_OF };
-				auto& trampoline = SKSE::GetTrampoline();
-				_PlayerHasKey = trampoline.write_call<5>(target.address(), PlayerHasKey);
-			}
-
 		private:
 			static bool PlayerHasKey(void* a_this, void* a_arg2, std::uint32_t a_arg3, std::int32_t a_arg4, std::int32_t a_arg5, bool& a_arg6)
 			{
-				if (Settings::MCM::General::bModEnabled.GetValue() && Settings::MCM::General::bIgnoreHasKey.GetValue())
-				{
+				if (Settings::MCM::General::bModEnabled && Settings::MCM::General::bIgnoreHasKey)
 					return false;
-				}
-
-				return _PlayerHasKey(a_this, a_arg2, a_arg3, a_arg4, a_arg5, a_arg6);
+				return _PlayerHasKey0(a_this, a_arg2, a_arg3, a_arg4, a_arg5, a_arg6);
 			}
 
-			inline static REL::Relocation<decltype(PlayerHasKey)> _PlayerHasKey;
+			inline static REL::THook _PlayerHasKey0{ REL::ID(17887), 0x0BA, PlayerHasKey };
+			inline static REL::THook _PlayerHasKey1{ REL::ID(17922), 0x239, PlayerHasKey };
 		};
 
-		template <std::int32_t a_ID, std::int32_t a_OF>
 		class hkTryUnlockObject
 		{
-		public:
-			static void Install()
-			{
-				REL::Relocation<std::uintptr_t> target{ REL::ID(a_ID), a_OF };
-				auto& trampoline = SKSE::GetTrampoline();
-				_TryUnlockObject = trampoline.write_call<5>(target.address(), TryUnlockObject);
-			}
-
 		private:
 			static void TryUnlockObject(RE::TESObjectREFR* a_refr)
 			{
-				if (Settings::MCM::General::bModEnabled.GetValue())
-				{
+				if (Settings::MCM::General::bModEnabled)
 					return TryUnlockObjectImpl(a_refr);
-				}
-
-				return _TryUnlockObject(a_refr);
+				return _TryUnlockObject0(a_refr);
 			}
 
-			inline static REL::Relocation<decltype(TryUnlockObject)> _TryUnlockObject;
+			inline static REL::THook _TryUnlockObject0{ REL::ID(17887), 0x18A, TryUnlockObject };
+			inline static REL::THook _TryUnlockObject1{ REL::ID(17922), 0x32A, TryUnlockObject };
 		};
 
 		static void* FinalizeUnlock(RE::TESObjectREFR* a_refr)
 		{
 			using func_t = decltype(&FinalizeUnlock);
-			REL::Relocation<func_t> func{ RELOCATION_ID(19110, 19512) };
+			static REL::Relocation<func_t> func{ REL::ID(19512) };
 			return func(a_refr);
 		}
 
@@ -105,21 +233,15 @@ namespace Hooks
 				return;
 			}
 
-			auto PlayerCharacter = RE::PlayerCharacter::GetSingleton();
-			if (!PlayerCharacter)
+			auto player = RE::PlayerCharacter::GetSingleton();
+			if (!player)
 			{
 				return;
 			}
 
-			auto GameSettingColl = RE::GameSettingCollection::GetSingleton();
-			if (!GameSettingColl)
-			{
-				return;
-			}
-
-			auto LockKey = a_refr->GetLock()->key;
-			auto LockLevel = a_refr->GetLockLevel();
-			switch (LockLevel)
+			auto lockKey = a_refr->GetLock()->key;
+			auto lockLvl = a_refr->GetLockLevel();
+			switch (lockLvl)
 			{
 			case RE::LOCK_LEVEL::kVeryEasy:
 			case RE::LOCK_LEVEL::kEasy:
@@ -130,18 +252,14 @@ namespace Hooks
 
 			case RE::LOCK_LEVEL::kRequiresKey:
 			{
-				if (PlayerHasItem(LockKey))
+				if (detail::Player::HasObject(lockKey))
 				{
 					UnlockObject(a_refr);
-					HandleUnlockNotification(LockKey);
+					detail::ShowMessage("sOpenWithKey"sv, lockKey->GetFullName());
 					return;
 				}
 
-				if (auto setting = GameSettingColl->GetSetting("sImpossibleLock"))
-				{
-					RE::SendHUDMessage::ShowHUDMessage(setting->GetString());
-				}
-
+				detail::ShowMessage("sImpossibleLock"sv);
 				return;
 			}
 
@@ -149,112 +267,74 @@ namespace Hooks
 				return;
 			}
 
-			if (!PlayerHasLockpicks())
+			if (!detail::Player::HasLockpicks())
 			{
-				if (auto setting = GameSettingColl->GetSetting("sOutOfLockpicks"))
-				{
-					RE::SendHUDMessage::ShowHUDMessage(setting->GetString());
-				}
-
-				if (PlayerHasItem(LockKey))
+				detail::ShowMessage("sOutOfLockpicks"sv);
+				if (detail::Player::HasObject(lockKey))
 				{
 					UnlockObject(a_refr);
-					HandleUnlockNotification(LockKey);
+					detail::ShowMessage("sOpenWithKey"sv, lockKey->GetFullName());
 				}
 
 				return;
 			}
 
-			auto LockVal = GetLockDifficultyClass(LockLevel);
-			auto RollMin = Settings::MCM::Rolls::iPlayerDiceMin.GetValue();
-			auto RollMax = std::max(RollMin, Settings::MCM::Rolls::iPlayerDiceMax.GetValue());
-			auto RollMod = GetRollModifier();
-			auto RollVal = effolkronium::random_thread_local::get<std::int32_t>(RollMin, RollMax);
+			auto lockVal = GetLockDifficultyClass(lockLvl);
+			auto rollMin = std::max<std::int32_t>(1, Settings::MCM::Rolls::iPlayerDiceMin);
+			auto rollMax = std::max<std::int32_t>(rollMin, Settings::MCM::Rolls::iPlayerDiceMax);
+			auto rollMod = GetRollMod();
+			auto rollVal = GetRollRNG(rollMin, rollMax);
 
-			if (Settings::MCM::General::bShowRollResults.GetValue())
+			if (Settings::MCM::General::bShowRollResults)
 			{
-				auto result = std::vformat(Settings::MCM::Runtime::sShowRollResults, std::make_format_args(LockVal, RollVal, RollMod));
+				auto result = std::vformat(Settings::MCM::Runtime::sShowRollResults, std::make_format_args(lockVal, rollVal, rollMod));
 				REX::INFO("{:s}"sv, result);
-				RE::SendHUDMessage::ShowHUDMessage(result.c_str());
+				RE::SendHUDMessage::ShowHUDMessage(result.data());
 			}
 
-			if (Settings::MCM::Rolls::bCriticalFailure.GetValue())
+			if (Settings::MCM::Rolls::bCriticalFailure &&
+				rollMin == rollVal)
 			{
-				if (RollMin == RollVal)
-				{
-					RE::SendHUDMessage::ShowHUDMessage(Settings::MCM::Runtime::sCriticalFailure.c_str());
-					PlayerCharacter->currentProcess->KnockExplosion(PlayerCharacter, PlayerCharacter->data.location, 5.0f);
-				}
+				RE::SendHUDMessage::ShowHUDMessage(Settings::MCM::Runtime::sCriticalFailure.data());
+				player->currentProcess->KnockExplosion(player, player->data.location, 5.0f);
 			}
 
-			if (Settings::MCM::Rolls::bCriticalSuccess.GetValue())
+			if (Settings::MCM::Rolls::bCriticalSuccess &&
+				rollMax == rollVal)
 			{
-				if (RollMax == RollVal)
-				{
-					RE::SendHUDMessage::ShowHUDMessage(Settings::MCM::Runtime::sCriticalSuccess.c_str());
-					HandleExperience(RE::LOCK_LEVEL::kVeryHard);
-				}
+				RE::SendHUDMessage::ShowHUDMessage(Settings::MCM::Runtime::sCriticalSuccess.data());
+				HandleExperience(RE::LOCK_LEVEL::kVeryHard);
 			}
 
-			RollVal += RollMod;
-			if (RollVal >= LockVal)
+			rollVal += rollMod;
+			if (rollVal >= lockVal)
 			{
 				UnlockObject(a_refr);
-				HandleExperience(LockLevel);
-				HandleWaxKey(LockKey);
+				HandleExperience(lockLvl);
+				HandleWaxKey(lockKey);
 
-				if (Settings::MCM::General::bDetectionEventSuccess.GetValue())
-				{
-					PlayerCharacter->currentProcess->SetActorsDetectionEvent(PlayerCharacter, a_refr->data.location, Settings::MCM::General::iDetectionEventSuccessLevel.GetValue(), a_refr);
-				}
+				if (Settings::MCM::General::bDetectionEventSuccess)
+					player->currentProcess->SetActorsDetectionEvent(
+						player,
+						a_refr->data.location,
+						Settings::MCM::General::iDetectionEventSuccessLevel,
+						a_refr);
 			}
 			else
 			{
 				HandleLockpickRemoval();
 				HandleExperience(RE::LOCK_LEVEL::kUnlocked);
 
-				if (Settings::MCM::General::bDetectionEventFailure.GetValue())
-				{
-					PlayerCharacter->currentProcess->SetActorsDetectionEvent(PlayerCharacter, a_refr->data.location, Settings::MCM::General::iDetectionEventFailureLevel.GetValue(), a_refr);
-				}
+				if (Settings::MCM::General::bDetectionEventFailure)
+					player->currentProcess->SetActorsDetectionEvent(
+						player,
+						a_refr->data.location,
+						Settings::MCM::General::iDetectionEventFailureLevel,
+						a_refr);
 			}
 
-			if (Settings::MCM::General::bLockpickingCrimeCheck.GetValue())
-			{
+			if (Settings::MCM::General::bLockpickingCrimeCheck)
 				HandleCrime(a_refr);
-			}
-		}
-
-		static std::int32_t GetItemCount(RE::TESForm* a_form)
-		{
-			auto PlayerCharacter = RE::PlayerCharacter::GetSingleton();
-			if (!PlayerCharacter)
-			{
-				return 0;
-			}
-
-			if (a_form)
-			{
-				if (auto form = a_form->As<RE::TESBoundObject>())
-				{
-					return PlayerCharacter->GetItemCount(form);
-				}
-				else if (auto list = a_form->As<RE::BGSListForm>())
-				{
-					std::int32_t count{ 0 };
-					for (auto& iter : list->forms)
-					{
-						if (auto object = iter->As<RE::TESBoundObject>())
-						{
-							count += PlayerCharacter->GetItemCount(object);
-						}
-					}
-
-					return count;
-				}
-			}
-
-			return 0;
 		}
 
 		static std::int32_t GetLockDifficultyClass(RE::LOCK_LEVEL a_lockLevel)
@@ -262,113 +342,94 @@ namespace Hooks
 			switch (a_lockLevel)
 			{
 			case RE::LOCK_LEVEL::kEasy:
-				return Settings::MCM::Rolls::iDCApprentice.GetValue();
+				return Settings::MCM::Rolls::iDCApprentice;
 			case RE::LOCK_LEVEL::kAverage:
-				return Settings::MCM::Rolls::iDCAdept.GetValue();
+				return Settings::MCM::Rolls::iDCAdept;
 			case RE::LOCK_LEVEL::kHard:
-				return Settings::MCM::Rolls::iDCExpert.GetValue();
+				return Settings::MCM::Rolls::iDCExpert;
 			case RE::LOCK_LEVEL::kVeryHard:
-				return Settings::MCM::Rolls::iDCMaster.GetValue();
+				return Settings::MCM::Rolls::iDCMaster;
 			default:
-				return Settings::MCM::Rolls::iDCNovice.GetValue();
+				return Settings::MCM::Rolls::iDCNovice;
 			}
 		}
 
-		static std::int32_t GetRollModifier_Skill()
+		static std::int32_t GetRollModStat()
 		{
-			auto PlayerCharacter = RE::PlayerCharacter::GetSingleton();
-			if (!PlayerCharacter)
-			{
-				return 0;
-			}
-
-			auto SkillMod = PlayerCharacter->GetActorValue(RE::ActorValue::kLockpickingModifier);
-			auto SkillPwr = PlayerCharacter->GetActorValue(RE::ActorValue::kLockpickingPowerModifier);
-			auto SkillLvl = PlayerCharacter->GetActorValue(GetSkillFromIndex());
-			auto SkillVal = SkillLvl * (1.0f + ((SkillMod + SkillPwr) / 100.0f));
-
-			return static_cast<std::int32_t>(floorf(SkillVal / Settings::MCM::Rolls::iBonusPerSkills.GetValue()));
+			auto lvl = detail::Player::GetValue(GetSkillFromIndex());
+			auto mod = detail::Player::GetValue(RE::ActorValue::kLockpickingModifier);
+			auto pwr = detail::Player::GetValue(RE::ActorValue::kLockpickingPowerModifier);
+			auto val = lvl * (1.0f + ((mod + pwr) / 100.0f));
+			return static_cast<std::int32_t>(floorf(val / Settings::MCM::Rolls::iBonusPerSkills));
 		}
 
-		static std::int32_t GetRollModifier_Perks()
+		static std::int32_t GetRollModPerk()
 		{
-			std::int32_t result{ 0 };
-			for (auto& form : Forms::AutoLock_Perks_Base->forms)
-			{
-				if (PlayerHasPerk(form))
-				{
-					result += Settings::MCM::Rolls::iBonusPerPerks.GetValue();
-				}
-			}
+			auto value = detail::Player::GetPerkCount(Forms::AutoLock_Perks_Base);
+			return static_cast<std::int32_t>(Settings::MCM::Rolls::iBonusPerPerks * value);
+		}
 
+		static std::int32_t GetRollModLKSM()
+		{
+			auto value = detail::Player::GetPerkCount(Forms::AutoLock_Perks_Locksmith);
+			return static_cast<std::int32_t>(Settings::MCM::Rolls::iBonusPerLcksm * value);
+		}
+
+		static std::int32_t GetRollMod()
+		{
+			auto result{ 0 };
+			result += GetRollModStat();
+			result += GetRollModPerk();
+			result += GetRollModLKSM();
+			result += Settings::MCM::Rolls::iBonusPerBonus;
 			return result;
 		}
 
-		static std::int32_t GetRollModifier_LCKSM()
+		static std::int32_t GetRollRNG(std::int32_t a_min, std::int32_t a_max)
 		{
-			for (auto& form : Forms::AutoLock_Perks_Locksmith->forms)
-			{
-				if (PlayerHasPerk(form))
-				{
-					return Settings::MCM::Rolls::iBonusPerLcksm.GetValue();
-				}
-			}
-
-			return 0;
-		}
-
-		static std::int32_t GetRollModifier_Bonus()
-		{
-			return Settings::MCM::Rolls::iBonusPerBonus.GetValue();
-		}
-
-		static std::int32_t GetRollModifier()
-		{
-			std::int32_t result{ 0 };
-			result += GetRollModifier_Skill();
-			result += GetRollModifier_Perks();
-			result += GetRollModifier_LCKSM();
-			result += GetRollModifier_Bonus();
-			return result;
+			static REX::RNG::I32 rng;
+			return rng.Generate(a_min, a_max);
 		}
 
 		static RE::ActorValue GetSkillFromIndex()
 		{
-			std::vector<RE::ActorValue> Skills = { RE::ActorValue::kOneHanded,
-				                                   RE::ActorValue::kTwoHanded,
-				                                   RE::ActorValue::kArchery,
-				                                   RE::ActorValue::kBlock,
-				                                   RE::ActorValue::kSmithing,
-				                                   RE::ActorValue::kHeavyArmor,
-				                                   RE::ActorValue::kLightArmor,
-				                                   RE::ActorValue::kPickpocket,
-				                                   RE::ActorValue::kLockpicking,
-				                                   RE::ActorValue::kSneak,
-				                                   RE::ActorValue::kAlchemy,
-				                                   RE::ActorValue::kSpeech,
-				                                   RE::ActorValue::kAlteration,
-				                                   RE::ActorValue::kConjuration,
-				                                   RE::ActorValue::kDestruction,
-				                                   RE::ActorValue::kIllusion,
-				                                   RE::ActorValue::kRestoration,
-				                                   RE::ActorValue::kEnchanting };
+			std::vector<RE::ActorValue> skill = {
+				RE::ActorValue::kOneHanded,
+				RE::ActorValue::kTwoHanded,
+				RE::ActorValue::kArchery,
+				RE::ActorValue::kBlock,
+				RE::ActorValue::kSmithing,
+				RE::ActorValue::kHeavyArmor,
+				RE::ActorValue::kLightArmor,
+				RE::ActorValue::kPickpocket,
+				RE::ActorValue::kLockpicking,
+				RE::ActorValue::kSneak,
+				RE::ActorValue::kAlchemy,
+				RE::ActorValue::kSpeech,
+				RE::ActorValue::kAlteration,
+				RE::ActorValue::kConjuration,
+				RE::ActorValue::kDestruction,
+				RE::ActorValue::kIllusion,
+				RE::ActorValue::kRestoration,
+				RE::ActorValue::kEnchanting
+			};
 
-			return Skills[Settings::MCM::General::iSkillIndex.GetValue()];
+			return skill[Settings::MCM::General::iSkillIndex];
 		}
 
 		static void HandleActivateUpdate(RE::TESObjectREFR* a_refr)
 		{
-			RE::GFxValue HUDObject;
-
-			if (auto UI = RE::UI::GetSingleton())
+			RE::GFxValue hudObject;
+			if (auto ui = RE::UI::GetSingleton())
 			{
-				if (auto HUDMenu = UI->GetMenu<RE::HUDMenu>(); HUDMenu && HUDMenu->uiMovie)
+				if (auto hud = ui->GetMenu<RE::HUDMenu>();
+					hud && hud->uiMovie)
 				{
-					HUDMenu->uiMovie->GetVariable(std::addressof(HUDObject), "_root.HUDMovieBaseInstance");
+					hud->uiMovie->GetVariable(&hudObject, "_root.HUDMovieBaseInstance");
 				}
 			}
 
-			if (HUDObject.IsObject())
+			if (hudObject.IsObject())
 			{
 				std::array<RE::GFxValue, 10> args;
 				args[0] = true;
@@ -377,40 +438,34 @@ namespace Hooks
 
 				RE::BSString name;
 				if (a_refr->data.objectReference)
-				{
 					a_refr->data.objectReference->GetActivateText(a_refr, name);
-				}
 
 				args[1] = name.empty() ? "" : name.c_str();
-				HUDObject.Invoke("SetCrosshairTarget", args);
+				hudObject.Invoke("SetCrosshairTarget", args);
 			}
 		}
 
 		static void HandleCrime(RE::TESObjectREFR* a_refr)
 		{
-			auto PlayerCharacter = RE::PlayerCharacter::GetSingleton();
-			if (!PlayerCharacter)
-			{
+			auto player = RE::PlayerCharacter::GetSingleton();
+			if (!player)
 				return;
-			}
 
 			auto owner = a_refr->GetOwner();
 			if (!owner)
 			{
 				if (a_refr->GetFormType() != RE::FormType::Door)
-				{
 					return;
-				}
 
-				if (auto ExtraTeleport = a_refr->extraList.GetByType<RE::ExtraTeleport>())
+				if (auto xtra = a_refr->extraList.GetByType<RE::ExtraTeleport>())
 				{
-					if (auto ETeleportData = ExtraTeleport->teleportData)
+					if (auto data = xtra->teleportData)
 					{
-						if (auto LinkedDoorREF = ETeleportData->linkedDoor.get())
+						if (auto door = data->linkedDoor.get())
 						{
-							if (auto LinkedCellREF = LinkedDoorREF->GetParentCell())
+							if (auto cell = door->GetParentCell())
 							{
-								owner = LinkedCellREF->GetOwner();
+								owner = cell->GetOwner();
 							}
 						}
 					}
@@ -418,29 +473,28 @@ namespace Hooks
 			}
 
 			if (!owner)
-			{
 				return;
-			}
 
-			if (auto ProcessLists = RE::ProcessLists::GetSingleton())
+			if (auto processLists = RE::ProcessLists::GetSingleton())
 			{
-				std::uint32_t LOSCount{ 1 };
-				if (ProcessLists->RequestHighestDetectionLevelAgainstActor(PlayerCharacter, LOSCount) > 0)
+				std::uint32_t count{ 1 };
+				if (processLists->RequestHighestDetectionLevelAgainstActor(player, count))
 				{
-					auto Crime{ 1.0f };
-					RE::BGSEntryPoint::HandleEntryPoint(RE::BGSEntryPoint::ENTRY_POINT::kModLockpickingCrimeChance, PlayerCharacter, a_refr, &Crime);
+					auto crime{ 1.0f };
+					RE::BGSEntryPoint::HandleEntryPoint(RE::BGSEntryPoint::ENTRY_POINT::kModLockpickingCrimeChance, player, a_refr, &crime);
 
-					auto Chance = effolkronium::random_thread_local::get<float>(0.0f, 1.0f);
-					if (Chance < Crime)
+					static REX::RNG::F32 rng;
+					if (rng.Generate(0.0f, 1.0f) < crime)
 					{
-						auto Prison = PlayerCharacter->currentPrisonFaction;
-						if (Prison && Prison->crimeData.crimevalues.escapeCrimeGold)
+						auto prison = player->currentPrisonFaction;
+						if (prison && prison->crimeData.crimevalues.escapeCrimeGold)
 						{
-							PlayerCharacter->SetEscaping(true, false);
+							player->SetEscaping(true, false);
 						}
 						else
 						{
-							PlayerCharacter->TrespassAlarm(a_refr, owner, -1);
+							player->TrespassAlarm(a_refr, owner, -1);
+							detail::ShowMessage("sLockpickingCaught"sv);
 						}
 					}
 				}
@@ -449,233 +503,97 @@ namespace Hooks
 
 		static void HandleExperience(RE::LOCK_LEVEL a_lockLevel)
 		{
-			auto PlayerCharacter = RE::PlayerCharacter::GetSingleton();
-			if (!PlayerCharacter)
+			if (auto player = RE::PlayerCharacter::GetSingleton())
 			{
-				return;
-			}
-
-			auto GameSettingColl = RE::GameSettingCollection::GetSingleton();
-			if (!GameSettingColl)
-			{
-				return;
-			}
-
-			auto LockpickingSkill = GetSkillFromIndex();
-			switch (a_lockLevel)
-			{
-			case RE::LOCK_LEVEL::kVeryEasy:
-				if (auto setting = GameSettingColl->GetSetting("fSkillUsageLockPickVeryEasy"))
+				if (auto settings = RE::GameSettingCollection::GetSingleton())
 				{
-					PlayerCharacter->AddSkillExperience(LockpickingSkill, setting->GetFloat());
+					switch (a_lockLevel)
+					{
+					case RE::LOCK_LEVEL::kVeryEasy:
+						if (auto setting = settings->GetSetting("fSkillUsageLockPickVeryEasy"))
+							player->AddSkillExperience(GetSkillFromIndex(), setting->GetFloat());
+						break;
+					case RE::LOCK_LEVEL::kEasy:
+						if (auto setting = settings->GetSetting("fSkillUsageLockPickEasy"))
+							player->AddSkillExperience(GetSkillFromIndex(), setting->GetFloat());
+						break;
+					case RE::LOCK_LEVEL::kAverage:
+						if (auto setting = settings->GetSetting("fSkillUsageLockPickAverage"))
+							player->AddSkillExperience(GetSkillFromIndex(), setting->GetFloat());
+						break;
+					case RE::LOCK_LEVEL::kHard:
+						if (auto setting = settings->GetSetting("fSkillUsageLockPickHard"))
+							player->AddSkillExperience(GetSkillFromIndex(), setting->GetFloat());
+						break;
+					case RE::LOCK_LEVEL::kVeryHard:
+						if (auto setting = settings->GetSetting("fSkillUsageLockPickVeryHard"))
+							player->AddSkillExperience(GetSkillFromIndex(), setting->GetFloat());
+						break;
+					default:
+						if (auto setting = settings->GetSetting("fSkillUsageLockPickBroken"))
+							player->AddSkillExperience(GetSkillFromIndex(), setting->GetFloat());
+						break;
+					}
 				}
-				return;
-
-			case RE::LOCK_LEVEL::kEasy:
-				if (auto setting = GameSettingColl->GetSetting("fSkillUsageLockPickEasy"))
-				{
-					PlayerCharacter->AddSkillExperience(LockpickingSkill, setting->GetFloat());
-				}
-				return;
-
-			case RE::LOCK_LEVEL::kAverage:
-				if (auto setting = GameSettingColl->GetSetting("fSkillUsageLockPickAverage"))
-				{
-					PlayerCharacter->AddSkillExperience(LockpickingSkill, setting->GetFloat());
-				}
-				return;
-
-			case RE::LOCK_LEVEL::kHard:
-				if (auto setting = GameSettingColl->GetSetting("fSkillUsageLockPickHard"))
-				{
-					PlayerCharacter->AddSkillExperience(LockpickingSkill, setting->GetFloat());
-				}
-				return;
-
-			case RE::LOCK_LEVEL::kVeryHard:
-				if (auto setting = GameSettingColl->GetSetting("fSkillUsageLockPickVeryHard"))
-				{
-					PlayerCharacter->AddSkillExperience(LockpickingSkill, setting->GetFloat());
-				}
-				return;
-
-			default:
-				if (auto setting = GameSettingColl->GetSetting("fSkillUsageLockPickBroken"))
-				{
-					PlayerCharacter->AddSkillExperience(LockpickingSkill, setting->GetFloat());
-				}
-				return;
 			}
 		}
 
 		static void HandleLockpickRemoval()
 		{
-			auto PlayerCharacter = RE::PlayerCharacter::GetSingleton();
-			if (!PlayerCharacter)
-			{
-				return;
-			}
-
-			if (PlayerHasBreakable())
-			{
-				for (auto& form : Forms::AutoLock_Items_Lockpick->forms)
-				{
-					if (PlayerHasItem(form))
-					{
-						RE::PlaySound("UILockpickingPickBreak");
-						PlayerCharacter->RemoveItem(form->As<RE::TESBoundObject>(), 1, RE::ITEM_REMOVE_REASON::kRemove, nullptr, nullptr);
-						HandleExperience(RE::LOCK_LEVEL::kUnlocked);
-						break;
-					}
-				}
-			}
-			else
+			if (!detail::Player::HasBreakable())
 			{
 				RE::PlaySound("UILockpickingCylinderTurn");
-			}
-		}
-
-		static void HandleUnlockNotification(RE::TESKey* a_key)
-		{
-			auto GameSettingColl = RE::GameSettingCollection::GetSingleton();
-			if (!GameSettingColl)
-			{
 				return;
 			}
 
-			auto NAME = std::string{ a_key->GetFullName() };
-			if (!NAME.empty())
-			{
-				if (auto setting = GameSettingColl->GetSetting("sOpenWithKey"))
+			Forms::AutoLock_Items_Lockpick->ForEachForm(
+				[](RE::TESForm* a_form)
 				{
-					auto result = std::string{ setting->GetString() };
-					if (!result.empty())
+					if (auto object = a_form->As<RE::TESBoundObject>();
+						object && detail::Player::HasObject(object))
 					{
-						result = std::vformat(result, std::make_format_args(NAME));
-						RE::SendHUDMessage::ShowHUDMessage(result.c_str());
+						RE::PlaySound("UILockpickingPickBreak");
+						RE::PlayerCharacter::GetSingleton()->RemoveItem(
+							object,
+							1,
+							RE::ITEM_REMOVE_REASON::kRemove,
+							nullptr,
+							nullptr);
+						HandleExperience(RE::LOCK_LEVEL::kUnlocked);
+						return RE::BSContainer::ForEachResult::kStop;
 					}
-				}
-			}
+
+					return RE::BSContainer::ForEachResult::kContinue;
+				});
 		}
 
 		static void HandleWaxKey(RE::TESKey* a_key)
 		{
-			auto PlayerCharacter = RE::PlayerCharacter::GetSingleton();
-			if (!PlayerCharacter)
+			if (a_key && !detail::Player::HasObject(a_key) && detail::Player::HasWaxKey())
 			{
-				return;
-			}
+				if (auto player = RE::PlayerCharacter::GetSingleton())
+					player->AddObjectToContainer(a_key, nullptr, 1, nullptr);
 
-			auto GameSettingColl = RE::GameSettingCollection::GetSingleton();
-			if (!GameSettingColl)
-			{
-				return;
-			}
+				auto sound = a_key->pickupSound->GetFormEditorID();
+				if (REX::STR::IS_EMPTY(sound))
+					sound = "ITMKeyUpSD";
 
-			if (a_key && PlayerHasWaxKey())
-			{
-				if (!PlayerHasItem(a_key))
+				auto name = a_key->GetFullName();
+				if (!REX::STR::IS_EMPTY(name))
 				{
-					auto sound = a_key->pickupSound->GetFormEditorID();
-					if (sound == nullptr || sound[0] == '\0')
-						sound = "ITMKeyUpSD";
-
-					PlayerCharacter->AddObjectToContainer(a_key, nullptr, 1, nullptr);
-
-					auto NAME = std::string{ a_key->GetFullName() };
-					if (!NAME.empty())
+					if (auto setting = RE::GameSettingCollection::GetSingleton())
 					{
-						if (auto setting = GameSettingColl->GetSetting("sAddItemtoInventory"))
+						if (auto format = setting->GetSetting("sAddItemtoInventory"))
 						{
-							auto result = std::format("{} {}"sv, NAME, setting->GetString());
+							auto result = std::format("{} {}"sv, name, format->GetString());
 							RE::SendHUDMessage::ShowHUDMessage(result.c_str(), sound);
 							return;
 						}
 					}
-
-					RE::PlaySound(sound);
 				}
+
+				RE::PlaySound(sound);
 			}
-		}
-
-		static bool PlayerHasBreakable()
-		{
-			if (Settings::MCM::General::bUnbreakableLockpicks.GetValue())
-			{
-				return false;
-			}
-
-			if (PlayerHasItem(Forms::AutoLock_Items_SkeletonKey))
-			{
-				return false;
-			}
-
-			for (auto& form : Forms::AutoLock_Perks_Unbreakable->forms)
-			{
-				if (PlayerHasPerk(form))
-				{
-					return false;
-				}
-			}
-
-			return true;
-		}
-
-		static bool PlayerHasItem(RE::TESForm* a_item)
-		{
-			if (!a_item)
-			{
-				return false;
-			}
-
-			return GetItemCount(a_item) > 0;
-		}
-
-		static bool PlayerHasLockpicks()
-		{
-			if (PlayerHasItem(Forms::AutoLock_Items_Lockpick))
-			{
-				return true;
-			}
-
-			if (PlayerHasItem(Forms::AutoLock_Items_SkeletonKey))
-			{
-				return true;
-			}
-
-			return false;
-		}
-
-		static bool PlayerHasPerk(RE::TESForm* a_perk)
-		{
-			auto PlayerCharacter = RE::PlayerCharacter::GetSingleton();
-			if (!PlayerCharacter)
-			{
-				return false;
-			}
-
-			if (auto perk = a_perk->As<RE::BGSPerk>())
-			{
-				if (PlayerCharacter->HasPerk(perk))
-				{
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-		static bool PlayerHasWaxKey()
-		{
-			for (auto& form : Forms::AutoLock_Perks_WaxKey->forms)
-			{
-				if (PlayerHasPerk(form))
-				{
-					return true;
-				}
-			}
-
-			return false;
 		}
 
 		static void UnlockObject(RE::TESObjectREFR* a_refr)
@@ -686,15 +604,10 @@ namespace Hooks
 			RE::PlaySound("UILockpickingUnlock");
 			HandleActivateUpdate(a_refr);
 
-			if (Settings::MCM::General::bActivateAfterPick.GetValue())
+			if (auto player = RE::PlayerCharacter::GetSingleton();
+				player && Settings::MCM::General::bActivateAfterPick)
 			{
-				auto PlayerCharacter = RE::PlayerCharacter::GetSingleton();
-				if (!PlayerCharacter)
-				{
-					return;
-				}
-
-				a_refr->ActivateRef(PlayerCharacter, 0, nullptr, 0, false);
+				a_refr->ActivateRef(player, 0, nullptr, 0, false);
 			}
 		}
 	};

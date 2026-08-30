@@ -4,8 +4,6 @@
 
 namespace Papyrus::AutoLockNative
 {
-	static constexpr std::string_view CLASS_NAME{ "AutoLockNative"sv };
-
 	enum
 	{
 		kVersion = 2
@@ -28,10 +26,10 @@ namespace Papyrus::AutoLockNative
 
 	static bool Register(RE::BSScript::IVirtualMachine* a_vm)
 	{
-		a_vm->RegisterFunction("GetVersion"sv, CLASS_NAME, GetVersion, true);
-		a_vm->RegisterFunction("GetRollModifiers"sv, CLASS_NAME, GetRollModifiers);
-		a_vm->RegisterFunction("UpdateSettings"sv, CLASS_NAME, UpdateSettings);
-		REX::INFO("Registered funcs for class {:s}"sv, CLASS_NAME);
+		a_vm->RegisterFunction("GetVersion"sv, "AutoLockNative"sv, GetVersion, true);
+		a_vm->RegisterFunction("GetRollModifiers"sv, "AutoLockNative"sv, GetRollModifiers);
+		a_vm->RegisterFunction("UpdateSettings"sv, "AutoLockNative"sv, UpdateSettings);
+		REX::INFO("Registered funcs for class AutoLockNative"sv);
 
 		return true;
 	}

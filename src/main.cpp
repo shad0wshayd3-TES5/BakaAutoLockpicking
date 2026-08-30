@@ -8,9 +8,6 @@ namespace
 	{
 		switch (a_msg->type)
 		{
-		case SKSE::MessagingInterface::kPostLoad:
-			Hooks::AutoLockNative::InstallHooks();
-			break;
 		case SKSE::MessagingInterface::kDataLoaded:
 			Forms::Register();
 			Settings::MCM::Update(true);
@@ -21,9 +18,9 @@ namespace
 	}
 }
 
-SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
+SKSE_PLUGIN_LOAD(const SKSE::LoadInterface* a_skse)
 {
-	SKSE::Init(a_skse, { .trampoline = true, .trampolineSize = 256 });
+	SKSE::Init(a_skse, { .trampoline = true, .trampolineSize = 32 });
 	SKSE::GetMessagingInterface()->RegisterListener(MessageHandler);
 	SKSE::GetPapyrusInterface()->Register(Papyrus::AutoLockNative::Register);
 	return true;
