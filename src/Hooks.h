@@ -214,13 +214,6 @@ namespace Hooks
 			inline static REL::THook _TryUnlockObject1{ REL::ID(17922), 0x32A, TryUnlockObject };
 		};
 
-		static void* FinalizeUnlock(RE::TESObjectREFR* a_refr)
-		{
-			using func_t = decltype(&FinalizeUnlock);
-			static REL::Relocation<func_t> func{ REL::ID(19512) };
-			return func(a_refr);
-		}
-
 		static void TryUnlockObjectImpl(RE::TESObjectREFR* a_refr)
 		{
 			if (!a_refr)
@@ -254,7 +247,7 @@ namespace Hooks
 			{
 				if (detail::Player::HasObject(lockKey))
 				{
-					UnlockObject(a_refr);
+					UnlockObject(a_refr, false);
 					detail::ShowMessage("sOpenWithKey"sv, lockKey->GetFullName());
 					return;
 				}
@@ -272,7 +265,7 @@ namespace Hooks
 				detail::ShowMessage("sOutOfLockpicks"sv);
 				if (detail::Player::HasObject(lockKey))
 				{
-					UnlockObject(a_refr);
+					UnlockObject(a_refr, false);
 					detail::ShowMessage("sOpenWithKey"sv, lockKey->GetFullName());
 				}
 
@@ -309,7 +302,7 @@ namespace Hooks
 			rollVal += rollMod;
 			if (rollVal >= lockVal)
 			{
-				UnlockObject(a_refr);
+				UnlockObject(a_refr, true);
 				HandleExperience(lockLvl);
 				HandleWaxKey(lockKey);
 
@@ -596,10 +589,17 @@ namespace Hooks
 			}
 		}
 
-		static void UnlockObject(RE::TESObjectREFR* a_refr)
+		static void UnlockObject(RE::TESObjectREFR* a_refr, bool a_picked)
 		{
 			a_refr->GetLock()->SetLocked(false);
-			FinalizeUnlock(a_refr);
+			a_refr->AddLockChange();
+
+			if (a_picked)
+			{
+				RE::LocksPicked::Event event{};
+				if (auto source = RE::LocksPicked::QEventSource())
+					source->SendEvent(&event);
+			}
 
 			RE::PlaySound("UILockpickingUnlock");
 			HandleActivateUpdate(a_refr);
