@@ -307,11 +307,7 @@ namespace Hooks
 				HandleWaxKey(lockKey);
 
 				if (Settings::MCM::General::bDetectionEventSuccess)
-					player->currentProcess->SetActorsDetectionEvent(
-						player,
-						a_refr->data.location,
-						Settings::MCM::General::iDetectionEventSuccessLevel,
-						a_refr);
+					HandleDetection(a_refr, Settings::MCM::General::iDetectionEventSuccessLevel);
 			}
 			else
 			{
@@ -319,15 +315,8 @@ namespace Hooks
 				HandleExperience(RE::LOCK_LEVEL::kUnlocked);
 
 				if (Settings::MCM::General::bDetectionEventFailure)
-					player->currentProcess->SetActorsDetectionEvent(
-						player,
-						a_refr->data.location,
-						Settings::MCM::General::iDetectionEventFailureLevel,
-						a_refr);
+					HandleDetection(a_refr, Settings::MCM::General::iDetectionEventFailureLevel);
 			}
-
-			if (Settings::MCM::General::bLockpickingCrimeCheck)
-				HandleCrime(a_refr);
 		}
 
 		static std::int32_t GetLockDifficultyClass(RE::LOCK_LEVEL a_lockLevel)
@@ -494,6 +483,18 @@ namespace Hooks
 			}
 		}
 
+		static void HandleDetection(RE::TESObjectREFR* a_refr, std::int32_t a_value)
+		{
+			if (a_refr && a_value > 0)
+			{
+				if (auto player = RE::PlayerCharacter::GetSingleton();
+					player && player->currentProcess)
+				{
+					player->currentProcess->SetActorsDetectionEvent(player, a_refr->data.location, a_value, a_refr);
+				}
+			}
+		}
+
 		static void HandleExperience(RE::LOCK_LEVEL a_lockLevel)
 		{
 			if (auto player = RE::PlayerCharacter::GetSingleton())
@@ -539,25 +540,35 @@ namespace Hooks
 				return;
 			}
 
-			Forms::AutoLock_Items_Lockpick->ForEachForm(
-				[](RE::TESForm* a_form)
+			if (Forms::AutoLock_Items_Lockpick)
+			{
+				if (Forms::AutoLock_Items_Lockpick->forms.size() == 0 &&
+					Forms::AutoLock_Items_Lockpick->scriptAddedFormCount == 0)
 				{
-					if (auto object = a_form->As<RE::TESBoundObject>();
-						object && detail::Player::HasObject(object))
-					{
-						RE::PlaySound("UILockpickingPickBreak");
-						RE::PlayerCharacter::GetSingleton()->RemoveItem(
-							object,
-							1,
-							RE::ITEM_REMOVE_REASON::kRemove,
-							nullptr,
-							nullptr);
-						HandleExperience(RE::LOCK_LEVEL::kUnlocked);
-						return RE::BSContainer::ForEachResult::kStop;
-					}
+					RE::PlaySound("UILockpickingCylinderTurn");
+					return;
+				}
 
-					return RE::BSContainer::ForEachResult::kContinue;
-				});
+				Forms::AutoLock_Items_Lockpick->ForEachForm(
+					[](RE::TESForm* a_form)
+					{
+						if (auto object = a_form->As<RE::TESBoundObject>();
+							object && detail::Player::HasObject(object))
+						{
+							RE::PlaySound("UILockpickingPickBreak");
+							RE::PlayerCharacter::GetSingleton()->RemoveItem(
+								object,
+								1,
+								RE::ITEM_REMOVE_REASON::kRemove,
+								nullptr,
+								nullptr);
+							HandleExperience(RE::LOCK_LEVEL::kUnlocked);
+							return RE::BSContainer::ForEachResult::kStop;
+						}
+
+						return RE::BSContainer::ForEachResult::kContinue;
+					});
+			}
 		}
 
 		static void HandleWaxKey(RE::TESKey* a_key)
@@ -600,6 +611,9 @@ namespace Hooks
 				if (auto source = RE::LocksPicked::QEventSource())
 					source->SendEvent(&event);
 			}
+
+			if (Settings::MCM::General::bLockpickingCrimeCheck)
+				HandleCrime(a_refr);
 
 			RE::PlaySound("UILockpickingUnlock");
 			HandleActivateUpdate(a_refr);
