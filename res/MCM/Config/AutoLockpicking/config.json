@@ -1,0 +1,434 @@
+{
+	"modName": "AutoLockpicking",
+	"displayName": "$AL_Page_Title",
+	"minMcmVersion": 9,
+	"pluginRequirements": [
+		"AutoLockpicking.esp"
+	],
+	"customContent": {
+		"source": "AL_Splash.swf"
+	},
+	"pages": [
+		{
+			"pageDisplayName": "$AL_Page_General",
+			"cursorFillMode": "topToBottom",
+			"content": [
+				{
+					"type": "header",
+					"text": "$AL_Header_Status",
+					"position": 0
+				},
+				{
+					"type": "stepper",
+					"text": "",
+					"groupCondition": 100,
+					"valueOptions": {
+						"options": [
+							"$AL_Text_ModDisabled",
+							"$AL_Text_ModEnabled"
+						],
+						"sourceType": "PropertyValueBool",
+						"propertyName": "MCM_ModEnabled"
+					}
+				},
+				{
+					"type": "stepper",
+					"text": "",
+					"help": "$AL_Help_ToggleMod",
+					"valueOptions": {
+						"options": [
+							"$AL_Text_Enable",
+							"$AL_Text_Disable"
+						],
+						"sourceType": "ModSettingBool"
+					},
+					"id": "bModEnabled:General"
+				},
+				{
+					"type": "empty"
+				},
+				{
+					"type": "header",
+					"text": "$AL_Header_Stats"
+				},
+				{
+					"type": "text",
+					"text": "$AL_Text_Stats_Skill",
+					"groupCondition": 100,
+					"valueOptions": {
+						"sourceType": "PropertyValueString",
+						"propertyName": "MCM_Stats_Skill"
+					}
+				},
+				{
+					"type": "text",
+					"text": "$AL_Text_Stats_Perks",
+					"groupCondition": 100,
+					"valueOptions": {
+						"sourceType": "PropertyValueString",
+						"propertyName": "MCM_Stats_Perks"
+					}
+				},
+				{
+					"type": "text",
+					"text": "$AL_Text_Stats_Lcksm",
+					"groupCondition": 100,
+					"valueOptions": {
+						"sourceType": "PropertyValueString",
+						"propertyName": "MCM_Stats_Lcksm"
+					}
+				},
+				{
+					"type": "text",
+					"text": "$AL_Text_Stats_Bonus",
+					"groupCondition": 100,
+					"valueOptions": {
+						"sourceType": "PropertyValueString",
+						"propertyName": "MCM_Stats_Bonus"
+					}
+				},
+				{
+					"type": "text",
+					"text": "$AL_Text_Stats_Total",
+					"groupCondition": 100,
+					"valueOptions": {
+						"sourceType": "PropertyValueString",
+						"propertyName": "MCM_Stats_Total"
+					}
+				},
+				{
+					"type": "hiddenToggle",
+					"groupControl": 100,
+					"valueOptions": {
+						"sourceType": "PropertyValueBool",
+						"propertyName": "MCM_DummyValue"
+					}
+				},
+				{
+					"type": "header",
+					"text": "$AL_Header_Settings",
+					"position": 1
+				},
+				{
+					"type": "toggle",
+					"text": "$AL_Text_ActivateAfterPick",
+					"help": "$AL_Help_ActivateAfterPick",
+					"valueOptions": {
+						"sourceType": "ModSettingBool"
+					},
+					"id": "bActivateAfterPick:General"
+				},
+				{
+					"type": "toggle",
+					"text": "$AL_Text_DetectionEventFailure",
+					"help": "$AL_Help_DetectionEventFailure",
+					"groupControl": 10,
+					"valueOptions": {
+						"sourceType": "ModSettingBool"
+					},
+					"id": "bDetectionEventFailure:General"
+				},
+				{
+					"type": "slider",
+					"text": "$AL_Text_DetectionEventFailureLevel",
+					"help": "$AL_Help_DetectionEventFailureLevel",
+					"groupCondition": 10,
+					"valueOptions": {
+						"min": 1,
+						"max": 100,
+						"step": 1,
+						"formatString": "{0}",
+						"sourceType": "ModSettingInt"
+					},
+					"id": "iDetectionEventFailureLevel:General"
+				},
+				{
+					"type": "toggle",
+					"text": "$AL_Text_DetectionEventSuccess",
+					"help": "$AL_Help_DetectionEventSuccess",
+					"groupControl": 20,
+					"valueOptions": {
+						"sourceType": "ModSettingBool"
+					},
+					"id": "bDetectionEventSuccess:General"
+				},
+				{
+					"type": "slider",
+					"text": "$AL_Text_DetectionEventSuccessLevel",
+					"help": "$AL_Help_DetectionEventSuccessLevel",
+					"groupCondition": 20,
+					"valueOptions": {
+						"min": 1,
+						"max": 100,
+						"step": 1,
+						"formatString": "{0}",
+						"sourceType": "ModSettingInt"
+					},
+					"id": "iDetectionEventSuccessLevel:General"
+				},
+				{
+					"type": "toggle",
+					"text": "$AL_Text_IgnoreHasKey",
+					"help": "$AL_Help_IgnoreHasKey",
+					"valueOptions": {
+						"sourceType": "ModSettingBool"
+					},
+					"id": "bIgnoreHasKey:General"
+				},
+				{
+					"type": "toggle",
+					"text": "$AL_Text_LockpickingCrimeCheck",
+					"help": "$AL_Help_LockpickingCrimeCheck",
+					"valueOptions": {
+						"sourceType": "ModSettingBool"
+					},
+					"id": "bLockpickingCrimeCheck:General"
+				},
+				{
+					"type": "toggle",
+					"text": "$AL_Text_ShowRollResults",
+					"help": "$AL_Help_ShowRollResults",
+					"valueOptions": {
+						"sourceType": "ModSettingBool"
+					},
+					"id": "bShowRollResults:General"
+				},
+				{
+					"type": "toggle",
+					"text": "$AL_Text_UnbreakableLockpicks",
+					"help": "$AL_Help_UnbreakableLockpicks",
+					"valueOptions": {
+						"sourceType": "ModSettingBool"
+					},
+					"id": "bUnbreakableLockpicks:General"
+				},
+				{
+					"type": "empty"
+				},
+				{
+					"type": "enum",
+					"text": "$AL_Text_SkillIndex",
+					"help": "$AL_Help_SkillIndex",
+					"valueOptions": {
+						"options": [
+							"$AL_Sk_OneHanded",
+							"$AL_Sk_TwoHanded",
+							"$AL_Sk_Archery",
+							"$AL_Sk_Block",
+							"$AL_Sk_Smithing",
+							"$AL_Sk_HeavyArmor",
+							"$AL_Sk_LightArmor",
+							"$AL_Sk_Pickpocket",
+							"$AL_Sk_Lockpicking",
+							"$AL_Sk_Sneak",
+							"$AL_Sk_Alchemy",
+							"$AL_Sk_Speech",
+							"$AL_Sk_Alteration",
+							"$AL_Sk_Conjuration",
+							"$AL_Sk_Destruction",
+							"$AL_Sk_Illusion",
+							"$AL_Sk_Restoration",
+							"$AL_Sk_Enchanting"
+						],
+						"sourceType": "ModSettingInt"
+					},
+					"id": "iSkillIndex:General"
+				}
+			]
+		},
+		{
+			"pageDisplayName": "$AL_Page_Rolls",
+			"cursorFillMode": "topToBottom",
+			"content": [
+				{
+					"type": "header",
+					"text": "$AL_Header_LockDC",
+					"position": 0
+				},
+				{
+					"type": "slider",
+					"text": "$AL_Text_DC_Novice",
+					"help": "$AL_Help_DC_Novice",
+					"valueOptions": {
+						"min": 1,
+						"max": 50,
+						"step": 1,
+						"formatString": "{0}",
+						"sourceType": "ModSettingInt"
+					},
+					"id": "iDCNovice:Rolls"
+				},
+				{
+					"type": "slider",
+					"text": "$AL_Text_DC_Apprentice",
+					"help": "$AL_Help_DC_Apprentice",
+					"valueOptions": {
+						"min": 1,
+						"max": 50,
+						"step": 1,
+						"formatString": "{0}",
+						"sourceType": "ModSettingInt"
+					},
+					"id": "iDCApprentice:Rolls"
+				},
+				{
+					"type": "slider",
+					"text": "$AL_Text_DC_Adept",
+					"help": "$AL_Help_DC_Adept",
+					"valueOptions": {
+						"min": 1,
+						"max": 50,
+						"step": 1,
+						"formatString": "{0}",
+						"sourceType": "ModSettingInt"
+					},
+					"id": "iDCAdept:Rolls"
+				},
+				{
+					"type": "slider",
+					"text": "$AL_Text_DC_Expert",
+					"help": "$AL_Help_DC_Expert",
+					"valueOptions": {
+						"min": 1,
+						"max": 50,
+						"step": 1,
+						"formatString": "{0}",
+						"sourceType": "ModSettingInt"
+					},
+					"id": "iDCExpert:Rolls"
+				},
+				{
+					"type": "slider",
+					"text": "$AL_Text_DC_Master",
+					"help": "$AL_Help_DC_Master",
+					"valueOptions": {
+						"min": 1,
+						"max": 50,
+						"step": 1,
+						"formatString": "{0}",
+						"sourceType": "ModSettingInt"
+					},
+					"id": "iDCMaster:Rolls"
+				},
+				{
+					"type": "empty"
+				},
+				{
+					"type": "header",
+					"text": "$AL_Header_PlayerDice"
+				},
+				{
+					"type": "slider",
+					"text": "$AL_Text_PlayerDiceMin",
+					"help": "$AL_Help_PlayerDiceMin",
+					"valueOptions": {
+						"min": 1,
+						"max": 50,
+						"step": 1,
+						"formatString": "{0}",
+						"sourceType": "ModSettingInt"
+					},
+					"id": "iPlayerDiceMin:Rolls"
+				},
+				{
+					"type": "slider",
+					"text": "$AL_Text_PlayerDiceMax",
+					"help": "$AL_Help_PlayerDiceMax",
+					"valueOptions": {
+						"min": 1,
+						"max": 50,
+						"step": 1,
+						"formatString": "{0}",
+						"sourceType": "ModSettingInt"
+					},
+					"id": "iPlayerDiceMax:Rolls"
+				},
+				{
+					"type": "header",
+					"text": "$AL_Header_RollModifiers",
+					"position": 1
+				},
+				{
+					"type": "slider",
+					"text": "$AL_Text_SkillPointsPerBonus",
+					"help": "$AL_Help_SkillPointsPerBonus",
+					"valueOptions": {
+						"min": 1,
+						"max": 100,
+						"step": 1,
+						"formatString": "{0}",
+						"sourceType": "ModSettingInt"
+					},
+					"id": "iBonusPerSkills:Rolls"
+				},
+				{
+					"type": "slider",
+					"text": "$AL_Text_BonusPerPerks",
+					"help": "$AL_Help_BonusPerPerks",
+					"valueOptions": {
+						"min": 1,
+						"max": 20,
+						"step": 1,
+						"formatString": "{0}",
+						"sourceType": "ModSettingInt"
+					},
+					"id": "iBonusPerPerks:Rolls"
+				},
+				{
+					"type": "slider",
+					"text": "$AL_Text_BonusPerLcksm",
+					"help": "$AL_Help_BonusPerLcksm",
+					"valueOptions": {
+						"min": 1,
+						"max": 20,
+						"step": 1,
+						"formatString": "{0}",
+						"sourceType": "ModSettingInt"
+					},
+					"id": "iBonusPerLcksm:Rolls"
+				},
+				{
+					"type": "slider",
+					"text": "$AL_Text_BonusPerBonus",
+					"help": "$AL_Help_BonusPerBonus",
+					"valueOptions": {
+						"min": -20,
+						"max": 20,
+						"step": 1,
+						"formatString": "{0}",
+						"sourceType": "ModSettingInt"
+					},
+					"id": "iBonusPerBonus:Rolls"
+				},
+				{
+					"type": "empty"
+				},
+				{
+					"type": "empty"
+				},
+				{
+					"type": "header",
+					"text": "$AL_Header_CriticalRolls"
+				},
+				{
+					"type": "toggle",
+					"text": "$AL_Text_CriticalFailure",
+					"help": "$AL_Help_CriticalFailure",
+					"valueOptions": {
+						"sourceType": "ModSettingBool"
+					},
+					"id": "bCriticalFailure:Rolls"
+				},
+				{
+					"type": "toggle",
+					"text": "$AL_Text_CriticalSuccess",
+					"help": "$AL_Help_CriticalSuccess",
+					"valueOptions": {
+						"sourceType": "ModSettingBool"
+					},
+					"id": "bCriticalSuccess:Rolls"
+				}
+			]
+		}
+	]
+}

@@ -18,6 +18,8 @@ set_config("commonlib_random", true)
 
 -- define targets
 target("AutoLockNative")
+    add_deps("AutoLockNative.archive", { order = true })
+
     add_rules("commonlibsse.plugin", {
         name = "AutoLockNative",
         author = "shad0wshayd3"
@@ -31,3 +33,32 @@ target("AutoLockNative")
 
     -- add extra files
     add_extrafiles(".clang-format")
+
+    -- add install files
+    add_installfiles("res/(**.ini)")
+    add_installfiles("res/(**.json)")
+    add_installfiles("res/AutoLockpicking.esp")
+
+target("AutoLockNative.archive")
+    add_deps("AutoLockNative.papyrus", { order = true })
+
+    add_rules("commonlibsse.archive", {
+        name = "AutoLockpicking",
+        install = "AutoLockNative"
+    })
+
+    add_extrafiles("res/(**.txt)")
+    add_extrafiles("res/(**.swf)")
+    add_extrafiles("res/(**.psc)")
+
+target("AutoLockNative.papyrus")
+    add_rules("commonlibsse.papyrus", {
+        archive = "AutoLockNative.archive",
+        options = {
+            imports = {
+                "lib/mcmhelper-sdk"
+            }
+        }
+    })
+
+    add_extrafiles("res/Source/Scripts/(**.psc)")
