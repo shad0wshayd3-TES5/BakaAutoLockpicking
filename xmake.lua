@@ -3,7 +3,7 @@ includes("lib/commonlibsse")
 
 -- set project constants
 set_project("AutoLockNative")
-set_version("4.1.0")
+set_version("4.2.0")
 set_license("GPL-3.0")
 set_languages("c++23")
 set_warnings("allextra")
@@ -22,7 +22,8 @@ target("AutoLockNative")
 
     add_rules("commonlibsse.plugin", {
         name = "AutoLockNative",
-        author = "shad0wshayd3"
+        author = "shad0wshayd3",
+        xse_minimum = "2.3.0"
     })
 
     -- add src files
