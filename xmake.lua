@@ -57,7 +57,7 @@ target("AutoLockNative.papyrus")
         archive = "AutoLockNative.archive",
         options = {
             imports = {
-                "lib/mcmhelper-sdk"
+                "lib/MCMHelper-SDK"
             }
         }
     })
