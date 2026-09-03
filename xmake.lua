@@ -38,7 +38,7 @@ target("AutoLockNative")
     -- add install files
     add_installfiles("res/(**.ini)")
     add_installfiles("res/(**.json)")
-    add_installfiles("res/AutoLockpicking.esp")
+    add_installfiles("res/(**.esp)")
 
 target("AutoLockNative.archive")
     add_deps("AutoLockNative.papyrus", { order = true })
